@@ -63,9 +63,9 @@
 		</div>
 	</header>
 
-	<div class="flex flex-1 max-w-7xl mx-auto p-6 gap-6 w-full">
-		<!-- Sidebar mejorado con mejor UI -->
-		<div class="w-80 flex-shrink-0">
+	<div class="flex flex-1 max-w-full mx-auto p-6 gap-6 w-full overflow-hidden">
+		<!-- Sidebar mejorado con mejor UI - Columna izquierda más ancha -->
+		<div style="width: 400px; flex-shrink: 0;">
 			<nav class="dark-card p-6 sticky top-6 min-h-[calc(100vh-8rem)] h-fit shadow-2xl border border-slate-700/50">
 				<div class="flex items-center justify-between mb-8">
 					<h2 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Progreso</h2>
@@ -128,16 +128,16 @@
 		</div>
 
 		<!-- Área de contenido principal y vista previa -->
-		<div class="flex-1 min-w-0 flex gap-6">
-			<!-- Contenido principal -->
-			<div class="flex-1">
+		<div class="flex gap-6" style="flex: 1; min-width: 0;">
+			<!-- Contenido principal - Columna central -->
+			<div style="width: 600px; flex-shrink: 0;">
 				<div class="dark-card min-h-[700px] p-6">
 					<slot />
 				</div>
 			</div>
 
-			<!-- Vista previa mejorada -->
-			<div class="w-80 flex-shrink-0">
+			<!-- Vista previa mejorada - Columna derecha -->
+			<div style="width: 350px; flex-shrink: 0;">
 				<div class="dark-card p-6 sticky top-6 shadow-2xl border border-slate-700/50">
 					<div class="flex items-center justify-between mb-6">
 						<h3 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">Vista Previa</h3>
