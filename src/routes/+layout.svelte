@@ -65,8 +65,8 @@
 
 	<div class="flex flex-1 max-w-full mx-auto p-6 gap-6 w-full overflow-hidden">
 		<!-- Sidebar mejorado con mejor UI - Columna izquierda -->
-		<div style="width: 350px; flex-shrink: 0;">
-			<nav class="dark-card p-6 sticky top-6 min-h-[calc(100vh-8rem)] h-fit shadow-2xl border border-slate-700/50">
+		<div style="width: 350px; flex-shrink: 0; height: calc(100vh - 120px); overflow-y: auto;">
+			<nav class="dark-card p-6 shadow-2xl border border-slate-700/50" style="height: 100%;">
 				<div class="flex items-center justify-between mb-8">
 					<h2 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Progreso</h2>
 					<div class="flex items-center space-x-1 text-xs text-slate-400">
@@ -130,15 +130,15 @@
 		<!-- Área de contenido principal y vista previa -->
 		<div class="flex gap-6" style="flex: 1; min-width: 0;">
 			<!-- Contenido principal - Columna central -->
-			<div style="width: 350px; flex-shrink: 0;">
-				<div class="dark-card min-h-[700px] p-6">
+			<div style="width: 350px; flex-shrink: 0; height: calc(100vh - 120px); overflow-y: auto;">
+				<div class="dark-card p-6" style="height: 100%; min-height: calc(100vh - 120px);">
 					<slot />
 				</div>
 			</div>
 
 			<!-- Vista previa mejorada - Columna derecha flexible -->
-			<div style="flex: 1; min-width: 0;">
-				<div class="dark-card p-6 sticky top-6 shadow-2xl border border-slate-700/50">
+			<div style="flex: 1; min-width: 0; height: calc(100vh - 120px); overflow-y: auto;">
+				<div class="dark-card p-6 shadow-2xl border border-slate-700/50" style="height: 100%; min-height: calc(100vh - 120px);">
 					<div class="flex items-center justify-between mb-6">
 						<h3 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">Vista Previa</h3>
 						<div class="flex items-center space-x-2">

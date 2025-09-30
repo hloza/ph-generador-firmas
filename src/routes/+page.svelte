@@ -88,27 +88,27 @@
   <!-- Textura sutil -->
   <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 1px 1px, rgba(252, 250, 238, 0.1) 1px, transparent 0); background-size: 30px 30px;"></div>
 
-<div class="max-w-7xl mx-auto px-6 py-12 relative z-10" class:animate-slideInUp={isLoaded}>
+<div class="h-full px-6 py-6 relative z-10" class:animate-slideInUp={isLoaded}>
   <!-- Grid de plantillas -->  
-  <div class="mb-20 relative">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div class="mb-8 relative">
+    <div class="grid grid-cols-2 gap-4">
       {#each templates as template, index}
         <button 
           on:click={() => selectTemplate(template.id)}
           style="
             position: relative;
             overflow: hidden;
-            border-radius: 12px;
+            border-radius: 8px;
             transition: all 0.3s ease;
-            transform: {selectedTemplateId === template.id ? 'translateY(-2px)' : 'translateY(0)'};
+            transform: {selectedTemplateId === template.id ? 'translateY(-1px)' : 'translateY(0)'};
             cursor: pointer;
             width: 100%;
             text-align: left;
-            height: 80px;
+            height: 60px;
             animation-delay: {index * 100}ms;
             background: #FCFAEE;
             border: 2px solid {selectedTemplateId === template.id ? '#B8001F' : 'rgba(56, 75, 112, 0.2)'};
-            box-shadow: {selectedTemplateId === template.id ? '0 8px 25px rgba(184, 0, 31, 0.15)' : '0 4px 12px rgba(56, 75, 112, 0.08)'};
+            box-shadow: {selectedTemplateId === template.id ? '0 4px 15px rgba(184, 0, 31, 0.15)' : '0 2px 8px rgba(56, 75, 112, 0.08)'};
           "
           class="group template-card {selectedTemplateId === template.id ? 'selected' : ''}"
           on:mouseenter={(e) => {
@@ -133,7 +133,7 @@
           <!-- Contenido principal -->
           <div style="
             position: relative;
-            padding: 16px;
+            padding: 12px;
             height: 100%;
             display: flex;
             align-items: center;
@@ -142,11 +142,11 @@
           ">
             <!-- Solo el nombre -->
             <h3 style="
-              font-size: 16px;
+              font-size: 14px;
               font-weight: 600;
               color: {selectedTemplateId === template.id ? '#B8001F' : '#384B70'};
               transition: all 0.3s ease;
-              line-height: 1.2;
+              line-height: 1.1;
               margin: 0;
               text-align: center;
             ">
