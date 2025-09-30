@@ -104,7 +104,7 @@
             cursor: pointer;
             width: 100%;
             text-align: left;
-            height: 120px;
+            height: 80px;
             animation-delay: {index * 100}ms;
             background: #FCFAEE;
             border: 2px solid {selectedTemplateId === template.id ? '#B8001F' : 'rgba(56, 75, 112, 0.2)'};
@@ -136,97 +136,22 @@
             padding: 16px;
             height: 100%;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            align-items: center;
+            justify-content: center;
             z-index: 10;
           ">
-            <!-- Información central -->
-            <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
-              <!-- Nombre -->
-              <h3 style="
-                font-size: 16px;
-                font-weight: 700;
-                color: {selectedTemplateId === template.id ? '#B8001F' : '#384B70'};
-                transition: all 0.3s;
-                line-height: 1.3;
-                margin: 0;
-              ">
-                {template.name}
-              </h3>
-              
-              <!-- Features simplificadas -->
-              <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;">
-                <span style="
-                  padding: 2px 6px;
-                  background: {selectedTemplateId === template.id ? 'rgba(184, 0, 31, 0.1)' : 'rgba(80, 118, 135, 0.1)'};
-                  color: {selectedTemplateId === template.id ? '#B8001F' : '#507687'};
-                  font-size: 10px;
-                  font-weight: 600;
-                  border-radius: 8px;
-                  border: 1px solid {selectedTemplateId === template.id ? 'rgba(184, 0, 31, 0.2)' : 'rgba(80, 118, 135, 0.2)'};
-                ">
-                  Profesional
-                </span>
-                <span style="
-                  padding: 2px 6px;
-                  background: {selectedTemplateId === template.id ? 'rgba(184, 0, 31, 0.1)' : 'rgba(80, 118, 135, 0.1)'};
-                  color: {selectedTemplateId === template.id ? '#B8001F' : '#507687'};
-                  font-size: 10px;
-                  font-weight: 600;
-                  border-radius: 8px;
-                  border: 1px solid {selectedTemplateId === template.id ? 'rgba(184, 0, 31, 0.2)' : 'rgba(80, 118, 135, 0.2)'};
-                ">
-                  Responsive
-                </span>
-              </div>
-            </div>
-            
-            <!-- Footer del card -->
-            <div style="
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              padding-top: 8px;
-              border-top: 1px solid {selectedTemplateId === template.id ? 'rgba(184, 0, 31, 0.2)' : 'rgba(56, 75, 112, 0.1)'};
-              margin-top: 8px;
+            <!-- Solo el nombre -->
+            <h3 style="
+              font-size: 16px;
+              font-weight: 600;
+              color: {selectedTemplateId === template.id ? '#B8001F' : '#384B70'};
+              transition: all 0.3s ease;
+              line-height: 1.2;
+              margin: 0;
+              text-align: center;
             ">
-              <!-- Estado -->
-              {#if selectedTemplateId === template.id}
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <div style="
-                    width: 6px;
-                    height: 6px;
-                    background: #B8001F;
-                    border-radius: 50%;
-                    animation: pulse 2s infinite;
-                  "></div>
-                  <span style="color: #B8001F; font-size: 11px; font-weight: 600;">Seleccionada</span>
-                </div>
-              {:else}
-                <span style="color: #507687; font-size: 11px;">
-                  Clic para seleccionar
-                </span>
-              {/if}
-              
-              <!-- Indicador visual simple -->
-              <div style="
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                border: 2px solid {selectedTemplateId === template.id ? '#B8001F' : 'rgba(80, 118, 135, 0.3)'};
-                background: {selectedTemplateId === template.id ? '#B8001F' : 'transparent'};
-                transition: all 0.3s;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              ">
-                {#if selectedTemplateId === template.id}
-                  <svg style="width: 10px; height: 10px; color: #FCFAEE;" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                  </svg>
-                {/if}
-              </div>
-            </div>
+              {template.name}
+            </h3>
           </div>
         </button>
       {/each}
