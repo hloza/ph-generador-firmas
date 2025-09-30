@@ -71,22 +71,14 @@
   </style>
 </svelte:head>
 
-<!-- Contenido principal con nueva paleta -->
-<div class="relative min-h-screen" style="background: linear-gradient(135deg, #384B70 0%, #507687 100%);">
+<!-- Contenido principal -->
+<div class="relative min-h-screen gradient-bg">
   <!-- Efectos de fondo sutiles -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none">
     <!-- Orbes sutiles -->
-    <div class="absolute top-20 right-20 w-64 h-64 rounded-full blur-3xl animate-pulse" style="background: rgba(252, 250, 238, 0.08); animation-duration: 6s;"></div>
-    <div class="absolute bottom-20 left-20 w-48 h-48 rounded-full blur-3xl animate-pulse" style="background: rgba(184, 0, 31, 0.12); animation-duration: 8s;"></div>
-    
-    <!-- Partículas sutiles -->
-    <div class="absolute top-32 left-16 w-1 h-1 rounded-full animate-bounce" style="background: rgba(252, 250, 238, 0.4); animation-delay: 0s; animation-duration: 4s;"></div>
-    <div class="absolute top-64 right-32 w-1 h-1 rounded-full animate-bounce" style="background: rgba(184, 0, 31, 0.6); animation-delay: 2s; animation-duration: 5s;"></div>
-    <div class="absolute bottom-40 left-1/3 w-1 h-1 rounded-full animate-bounce" style="background: rgba(252, 250, 238, 0.3); animation-delay: 1s; animation-duration: 3s;"></div>
+    <div class="absolute top-20 right-20 w-64 h-64 rounded-full blur-3xl animate-pulse opacity-10" style="background: var(--accent); animation-duration: 6s;"></div>
+    <div class="absolute bottom-20 left-20 w-48 h-48 rounded-full blur-3xl animate-pulse opacity-10" style="background: var(--secondary); animation-duration: 8s;"></div>
   </div>
-  
-  <!-- Textura sutil -->
-  <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 1px 1px, rgba(252, 250, 238, 0.1) 1px, transparent 0); background-size: 30px 30px;"></div>
 
 <div class="h-full px-6 py-6 relative z-10" class:animate-slideInUp={isLoaded}>
   <!-- Grid de plantillas -->  
@@ -95,20 +87,11 @@
       {#each templates as template, index}
         <button 
           on:click={() => selectTemplate(template.id)}
+          class="relative overflow-hidden rounded-lg transition-all duration-300 cursor-pointer w-full text-left border-2 {selectedTemplateId === template.id ? 'bg-accent/5 border-accent shadow-lg' : 'bg-card border-border shadow-sm hover:shadow-md hover:border-accent/50'}"
           style="
-            position: relative;
-            overflow: hidden;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            transform: {selectedTemplateId === template.id ? 'translateY(-1px)' : 'translateY(0)'};
-            cursor: pointer;
-            width: 100%;
-            text-align: left;
             height: 60px;
             animation-delay: {index * 100}ms;
-            background: #FCFAEE;
-            border: 2px solid {selectedTemplateId === template.id ? '#B8001F' : 'rgba(56, 75, 112, 0.2)'};
-            box-shadow: {selectedTemplateId === template.id ? '0 4px 15px rgba(184, 0, 31, 0.15)' : '0 2px 8px rgba(56, 75, 112, 0.08)'};
+            transform: {selectedTemplateId === template.id ? 'translateY(-1px)' : 'translateY(0)'};
           "
           class="group template-card {selectedTemplateId === template.id ? 'selected' : ''}"
           on:mouseenter={(e) => {
@@ -141,15 +124,8 @@
             z-index: 10;
           ">
             <!-- Solo el nombre -->
-            <h3 style="
-              font-size: 14px;
-              font-weight: 600;
-              color: {selectedTemplateId === template.id ? '#B8001F' : '#384B70'};
-              transition: all 0.3s ease;
-              line-height: 1.1;
-              margin: 0;
-              text-align: center;
-            ">
+            <h3 class="text-sm font-semibold transition-all duration-300 text-center m-0 {selectedTemplateId === template.id ? 'text-accent' : 'text-card-foreground'}"
+                style="line-height: 1.1;">
               {template.name}
             </h3>
           </div>
@@ -182,30 +158,7 @@
         <!-- Botón continuar simplificado -->
         <button 
           on:click={continueToNextStep}
-          style="
-            background: #B8001F;
-            color: #FCFAEE;
-            border: 2px solid #B8001F;
-            padding: 16px 32px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(184, 0, 31, 0.2);
-          "
-          on:mouseenter={(e) => {
-            e.currentTarget.style.background = '#FCFAEE';
-            e.currentTarget.style.color = '#B8001F';
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 6px 20px rgba(184, 0, 31, 0.3)';
-          }}
-          on:mouseleave={(e) => {
-            e.currentTarget.style.background = '#B8001F';
-            e.currentTarget.style.color = '#FCFAEE';
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(184, 0, 31, 0.2)';
-          }}
+          class="bg-accent text-accent-foreground hover:bg-accent-foreground hover:text-accent border-2 border-accent px-8 py-4 rounded-lg font-semibold transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl transform hover:-translate-y-1"
         >
           Continuar con {selectedTemplate?.name}
         </button>
@@ -215,38 +168,18 @@
     </div>
   {:else}
     <!-- Estado sin selección -->
-    <div style="text-align: center; padding: 60px 20px;">
-      <div style="max-width: 500px; margin: 0 auto;">
-        <div style="
-          width: 120px;
-          height: 120px;
-          background: rgba(252, 250, 238, 0.1);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 3px dashed rgba(252, 250, 238, 0.3);
-          margin: 0 auto 32px auto;
-        ">
-          <svg style="width: 48px; height: 48px; color: #FCFAEE;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="text-center py-16 px-5">
+      <div class="max-w-md mx-auto">
+        <div class="w-30 h-30 bg-muted/20 rounded-full flex items-center justify-center border-3 border-dashed border-muted-foreground/30 mx-auto mb-8">
+          <svg class="w-12 h-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
           </svg>
         </div>
         <div>
-          <h3 style="
-            font-size: 28px;
-            font-weight: 700;
-            color: #FCFAEE;
-            margin-bottom: 16px;
-          ">
+          <h3 class="text-2xl font-bold text-foreground mb-4">
             Selecciona una Plantilla
           </h3>
-          <p style="
-            color: rgba(252, 250, 238, 0.8);
-            font-size: 16px;
-            line-height: 1.6;
-            margin: 0;
-          ">
+          <p class="text-muted-foreground text-base leading-relaxed">
             Elige una plantilla profesional para comenzar a crear tu firma de correo electrónico
           </p>
         </div>

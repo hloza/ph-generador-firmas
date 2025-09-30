@@ -30,29 +30,29 @@
   }
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
+<div class="min-h-screen bg-background text-foreground flex flex-col">
 	<!-- Header mejorado -->
-	<header class="glass-effect border-b border-slate-700/30 flex-shrink-0 backdrop-blur-xl bg-slate-900/80">
-		<div class="max-w-7xl mx-auto px-6 py-5">
+	<header class="glass-effect border-b border-border flex-shrink-0">
+		<div class="max-w-full mx-auto px-6 py-4">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-4">
-					<div class="bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 p-3 rounded-2xl neon-glow shadow-lg transform hover:scale-105 transition-transform duration-200">
-						<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<div class="bg-primary text-primary-foreground p-3 rounded-lg shadow-lg">
+						<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
 						</svg>
 					</div>
 					<div>
-						<h1 class="text-2xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent">Generador de Firmas</h1>
-						<p class="text-sm text-slate-300 font-medium">Crea firmas profesionales con estilo</p>
+						<h1 class="text-2xl font-bold text-foreground">Generador de Firmas</h1>
+						<p class="text-sm text-muted-foreground">Crea firmas profesionales con estilo</p>
 					</div>
 				</div>
 				<div class="flex items-center space-x-4">
-					<button class="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-700/50" aria-label="Cambiar tema">
+					<button class="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted" aria-label="Cambiar tema">
 						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
 						</svg>
 					</button>
-					<button class="flex items-center space-x-2 text-slate-400 hover:text-white transition-colors">
+					<button class="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors">
 						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 						</svg>
@@ -66,7 +66,7 @@
 	<div class="flex flex-1 max-w-full mx-auto p-6 gap-6 w-full overflow-hidden">
 		<!-- Sidebar mejorado con mejor UI - Columna izquierda -->
 		<div style="width: 350px; flex-shrink: 0; height: calc(100vh - 120px); overflow-y: auto;">
-			<nav class="dark-card p-6 shadow-2xl border border-slate-700/50" style="height: 100%;">
+			<nav class="bg-card text-card-foreground p-6 rounded-lg border border-border shadow-lg" style="height: 100%;">
 				<div class="flex items-center justify-between mb-8">
 					<h2 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Progreso</h2>
 					<div class="flex items-center space-x-1 text-xs text-slate-400">
@@ -131,14 +131,14 @@
 		<div class="flex gap-6" style="flex: 1; min-width: 0;">
 			<!-- Contenido principal - Columna central -->
 			<div style="width: 350px; flex-shrink: 0; height: calc(100vh - 120px); overflow-y: auto;">
-				<div class="dark-card p-6" style="height: 100%; min-height: calc(100vh - 120px);">
+				<div class="bg-card text-card-foreground p-6 rounded-lg border border-border shadow-lg" style="height: 100%; min-height: calc(100vh - 120px);">
 					<slot />
 				</div>
 			</div>
 
 			<!-- Vista previa mejorada - Columna derecha flexible -->
 			<div style="flex: 1; min-width: 0; height: calc(100vh - 120px); overflow-y: auto;">
-				<div class="dark-card p-6 shadow-2xl border border-slate-700/50" style="height: 100%; min-height: calc(100vh - 120px);">
+				<div class="bg-card text-card-foreground p-6 rounded-lg border border-border shadow-lg" style="height: 100%; min-height: calc(100vh - 120px);">
 					<div class="flex items-center justify-between mb-6">
 						<h3 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">Vista Previa</h3>
 						<div class="flex items-center space-x-2">
