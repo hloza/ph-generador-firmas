@@ -157,35 +157,7 @@
       {/each}
     </div>
     
-    <!-- Información adicional -->
-    <div class="text-center mt-16">
-      <p class="text-slate-400 mb-6 text-lg">
-        ¿No encuentras lo que buscas? 
-        <button class="text-cyan-400 hover:text-cyan-300 underline decoration-cyan-400/50 underline-offset-4 transition-all duration-300 hover:decoration-cyan-300">
-          Contáctanos para un diseño personalizado
-        </button>
-      </p>
-      <div class="flex flex-wrap justify-center gap-8 text-sm text-slate-500">
-        <span class="flex items-center space-x-2">
-          <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-          </svg>
-          <span>Compatible con todos los clientes de email</span>
-        </span>
-        <span class="flex items-center space-x-2">
-          <svg class="w-5 h-5 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-          </svg>
-          <span>Fácil de personalizar</span>
-        </span>
-        <span class="flex items-center space-x-2">
-          <svg class="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path>
-          </svg>
-          <span>Generación instantánea</span>
-        </span>
-      </div>
-    </div>
+
   </div>
 
   <!-- Sección de confirmación premium -->
@@ -207,70 +179,76 @@
           </div>
         </div>
         
-        <!-- Botón continuar premium -->
+        <!-- Botón continuar simplificado -->
         <button 
           on:click={continueToNextStep}
-          class="group relative overflow-hidden bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 hover:from-cyan-500 hover:via-blue-500 hover:to-purple-500 text-white font-black py-6 px-12 rounded-3xl transition-all duration-700 shadow-2xl hover:shadow-cyan-500/40 transform hover:scale-110 hover:-translate-y-2"
+          style="
+            background: #B8001F;
+            color: #FCFAEE;
+            border: 2px solid #B8001F;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(184, 0, 31, 0.2);
+          "
+          on:mouseenter={(e) => {
+            e.currentTarget.style.background = '#FCFAEE';
+            e.currentTarget.style.color = '#B8001F';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(184, 0, 31, 0.3)';
+          }}
+          on:mouseleave={(e) => {
+            e.currentTarget.style.background = '#B8001F';
+            e.currentTarget.style.color = '#FCFAEE';
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(184, 0, 31, 0.2)';
+          }}
         >
-          <!-- Efectos de brillo múltiples -->
-          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-          <div class="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          
-          <div class="relative flex items-center justify-center space-x-4">
-            <svg class="w-8 h-8 group-hover:rotate-90 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-            </svg>
-            <span class="text-2xl">Continuar con</span>
-            <span class="text-2xl font-black bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">{selectedTemplate?.name}</span>
-            <svg class="w-8 h-8 group-hover:translate-x-4 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-            </svg>
-          </div>
+          Continuar con {selectedTemplate?.name}
         </button>
         
-        <!-- Descripción elegante -->
-        <div class="text-center space-y-4">
-          <p class="text-slate-400 text-lg leading-relaxed max-w-lg">
-            En el siguiente paso podrás personalizar la información de tu perfil profesional y hacer que tu firma sea única
-          </p>
-          <div class="flex justify-center space-x-6 text-sm text-slate-500">
-            <span class="flex items-center space-x-2">
-              <div class="w-2 h-2 bg-cyan-400 rounded-full"></div>
-              <span>Paso 1 de 5</span>
-            </span>
-            <span class="flex items-center space-x-2">
-              <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
-              <span>2-3 minutos</span>
-            </span>
-            <span class="flex items-center space-x-2">
-              <div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
-              <span>100% Gratis</span>
-            </span>
-          </div>
-        </div>
+
       </div>
     </div>
   {:else}
-    <!-- Estado sin selección elegante -->
-    <div class="text-center py-20">
-      <div class="inline-flex flex-col items-center space-y-8 max-w-lg mx-auto">
-        <div class="w-32 h-32 bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-full flex items-center justify-center border-4 border-dashed border-slate-600/50 backdrop-blur-sm">
-          <svg class="w-16 h-16 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Estado sin selección -->
+    <div style="text-align: center; padding: 60px 20px;">
+      <div style="max-width: 500px; margin: 0 auto;">
+        <div style="
+          width: 120px;
+          height: 120px;
+          background: rgba(252, 250, 238, 0.1);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 3px dashed rgba(252, 250, 238, 0.3);
+          margin: 0 auto 32px auto;
+        ">
+          <svg style="width: 48px; height: 48px; color: #FCFAEE;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
           </svg>
         </div>
-        <div class="space-y-4">
-          <h3 class="text-3xl font-black text-slate-200 mb-4">
+        <div>
+          <h3 style="
+            font-size: 28px;
+            font-weight: 700;
+            color: #FCFAEE;
+            margin-bottom: 16px;
+          ">
             Selecciona una Plantilla
           </h3>
-          <p class="text-slate-400 leading-relaxed text-lg">
-            Elige una de nuestras plantillas profesionales para comenzar a crear tu firma de correo electrónico personalizada y destacar en cada conversación
+          <p style="
+            color: rgba(252, 250, 238, 0.8);
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0;
+          ">
+            Elige una plantilla profesional para comenzar a crear tu firma de correo electrónico
           </p>
-          <div class="flex justify-center space-x-2 mt-6">
-            <div class="w-2 h-2 bg-slate-600 rounded-full animate-bounce" style="animation-delay: 0s;"></div>
-            <div class="w-2 h-2 bg-slate-600 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
-            <div class="w-2 h-2 bg-slate-600 rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
-          </div>
         </div>
       </div>
     </div>
