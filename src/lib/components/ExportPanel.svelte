@@ -1,43 +1,49 @@
 <script lang="ts">
   import { signatureData, showToast } from '$lib/stores/signature.js';
-  import { generateSignatureHTML, copyToClipboard, downloadFile, formatFileName } from '$lib/utils/signature.js';
+  import { generateSignatureHTML, copyToClipboard, formatFileName } from '$lib/utils/signature.js';
   import { onMount } from 'svelte';
+  import { base } from '$app/paths';
 
-  let isExporting = false;
-  let generatedURL = '';
+  let isProcessing = false;
   let htmlToImage: any = null;
 
   onMount(async () => {
-    // Importar html-to-image dinámicamente
+    // Importar html-to-image dinámicamente para generar imágenes
     if (typeof window !== 'undefined') {
       htmlToImage = await import('html-to-image');
     }
   });
 
+  // 1. Copiar HTML de la firma
   async function copyHTML() {
     try {
+      isProcessing = true;
       const html = generateSignatureHTML($signatureData);
       const success = await copyToClipboard(html);
       
       if (success) {
-        showToast('success', 'HTML copiado al portapapeles');
+        showToast('success', '✅ HTML copiado al portapapeles');
       } else {
-        showToast('error', 'Error al copiar HTML');
+        showToast('error', '❌ Error al copiar HTML');
       }
     } catch (error) {
       console.error('Error copying HTML:', error);
-      showToast('error', 'Error al generar HTML');
+      showToast('error', '❌ Error al generar HTML');
+    } finally {
+      isProcessing = false;
     }
   }
 
-  async function downloadPNG() {
+  // 2. Generar y descargar imagen de la firma
+  async function generateImage() {
     if (!htmlToImage) {
-      showToast('error', 'Error: Funcionalidad de imagen no disponible');
+      showToast('error', '❌ Error: Funcionalidad de imagen no disponible');
       return;
     }
 
     try {
-      isExporting = true;
+      isProcessing = true;
+      showToast('info', '🔄 Generando imagen...');
       
       // Crear elemento temporal con la firma
       const tempElement = document.createElement('div');
@@ -54,7 +60,7 @@
       
       document.body.appendChild(tempElement);
       
-      // Generar imagen
+      // Generar imagen PNG
       const dataUrl = await htmlToImage.toPng(tempElement, {
         width: 640,
         height: 400,
@@ -71,354 +77,241 @@
       
       // Descargar imagen
       const link = document.createElement('a');
-      link.download = `firma-${formatFileName($signatureData.fullName)}.png`;
+      link.download = `firma-${formatFileName($signatureData.fullName || 'signature')}.png`;
       link.href = dataUrl;
       link.click();
       
-      showToast('success', 'Imagen PNG descargada correctamente');
+      showToast('success', '🖼️ Imagen generada y descargada');
       
     } catch (error) {
-      console.error('Error generating PNG:', error);
-      showToast('error', 'Error al generar imagen PNG');
+      console.error('Error generating image:', error);
+      showToast('error', '❌ Error al generar imagen');
     } finally {
-      isExporting = false;
+      isProcessing = false;
     }
   }
 
-  async function downloadSVG() {
-    if (!htmlToImage) {
-      showToast('error', 'Error: Funcionalidad de imagen no disponible');
-      return;
-    }
-
+  // 3. Copiar texto plano de la firma
+  async function copyPlainText() {
     try {
-      isExporting = true;
+      isProcessing = true;
       
-      // Crear elemento temporal con la firma
-      const tempElement = document.createElement('div');
-      tempElement.innerHTML = generateSignatureHTML($signatureData);
-      tempElement.style.cssText = `
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-        width: 600px;
-        padding: 20px;
-        background: white;
-        font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      `;
+      const data = $signatureData;
+      const name = data.name || data.fullName || 'Tu nombre';
+      const title = data.title || data.position || 'Tu cargo';
+      const company = data.company || 'Tu empresa';
+      const department = data.department ? ` | ${data.department}` : '';
+      const email = data.email || 'tu.email@empresa.com';
+      const phone = data.phone || '+34 xxx xxx xxx';
+      const website = data.website || '';
+      const address = data.address || '';
       
-      document.body.appendChild(tempElement);
+      let plainText = `${name}\n${title}\n${company}${department}\n\n`;
       
-      // Generar SVG
-      const dataUrl = await htmlToImage.toSvg(tempElement, {
-        width: 640,
-        height: 400,
-        backgroundColor: 'white',
-      });
+      if (email !== 'tu.email@empresa.com') plainText += `📧 ${email}\n`;
+      if (phone !== '+34 xxx xxx xxx') plainText += `📱 ${phone}\n`;
+      if (website) plainText += `🌐 ${website}\n`;
+      if (address) plainText += `📍 ${address}\n`;
       
-      // Limpiar elemento temporal
-      document.body.removeChild(tempElement);
+      // Agregar redes sociales si están configuradas
+      if (data.linkedin) plainText += `LinkedIn: ${data.linkedin}\n`;
+      if (data.twitter) plainText += `Twitter: ${data.twitter}\n`;
+      if (data.github) plainText += `GitHub: ${data.github}\n`;
+      if (data.instagram) plainText += `Instagram: ${data.instagram}\n`;
       
-      // Descargar SVG
-      const link = document.createElement('a');
-      link.download = `firma-${formatFileName($signatureData.fullName)}.svg`;
-      link.href = dataUrl;
-      link.click();
+      const success = await copyToClipboard(plainText);
       
-      showToast('success', 'Imagen SVG descargada correctamente');
-      
+      if (success) {
+        showToast('success', '📄 Texto plano copiado');
+      } else {
+        showToast('error', '❌ Error al copiar texto');
+      }
     } catch (error) {
-      console.error('Error generating SVG:', error);
-      showToast('error', 'Error al generar imagen SVG');
+      console.error('Error copying plain text:', error);
+      showToast('error', '❌ Error al generar texto plano');
     } finally {
-      isExporting = false;
+      isProcessing = false;
     }
   }
 
-  async function generateURL() {
+  // 4. Generar URL con parámetros GET para rellenar el formulario
+  async function copyPrefilledURL() {
     try {
-      // En un proyecto real, esto enviaría los datos a un servidor
-      // Por ahora, simulamos la generación de URL
-      const signatureId = Math.random().toString(36).substr(2, 9);
-      const baseUrl = window.location.origin;
-      generatedURL = `${baseUrl}/signature/${signatureId}`;
+      isProcessing = true;
       
-      // Simular guardado en servidor (en un proyecto real)
-      localStorage.setItem(`signature_${signatureId}`, JSON.stringify($signatureData));
+      const data = $signatureData;
+      const params = new URLSearchParams();
       
-      showToast('success', 'URL generada correctamente');
+      // Agregar todos los parámetros disponibles
+      if (data.name || data.fullName) params.set('name', data.name || data.fullName);
+      if (data.title || data.position) params.set('title', data.title || data.position);
+      if (data.company) params.set('company', data.company);
+      if (data.department) params.set('department', data.department);
+      if (data.email) params.set('email', data.email);
+      if (data.phone) params.set('phone', data.phone);
+      if (data.website) params.set('website', data.website);
+      if (data.address) params.set('address', data.address);
+      if (data.primaryColor) params.set('primaryColor', data.primaryColor);
+      if (data.accentColor) params.set('accentColor', data.accentColor);
+      if (data.fontFamily) params.set('fontFamily', data.fontFamily);
+      if (data.templateId) params.set('templateId', data.templateId);
+      if (data.linkedin) params.set('linkedin', data.linkedin);
+      if (data.twitter) params.set('twitter', data.twitter);
+      if (data.github) params.set('github', data.github);
+      if (data.instagram) params.set('instagram', data.instagram);
+      
+      const currentURL = window.location.origin + base;
+      const prefilledURL = `${currentURL}?${params.toString()}`;
+      
+      const success = await copyToClipboard(prefilledURL);
+      
+      if (success) {
+        showToast('success', '🔗 URL con datos copiada');
+      } else {
+        showToast('error', '❌ Error al copiar URL');
+      }
     } catch (error) {
-      console.error('Error generating URL:', error);
-      showToast('error', 'Error al generar URL');
+      console.error('Error generating prefilled URL:', error);
+      showToast('error', '❌ Error al generar URL');
+    } finally {
+      isProcessing = false;
     }
   }
-
-  async function copyURL() {
-    if (!generatedURL) {
-      await generateURL();
-    }
-    
-    const success = await copyToClipboard(generatedURL);
-    
-    if (success) {
-      showToast('success', 'URL copiada al portapapeles');
-    } else {
-      showToast('error', 'Error al copiar URL');
-    }
-  }
-
-  function downloadHTML() {
-    try {
-      const html = generateSignatureHTML($signatureData);
-      const fullHTML = `
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firma de ${$signatureData.fullName}</title>
-</head>
-<body style="margin: 0; padding: 20px; background-color: #f9fafb; font-family: Arial, sans-serif;">
-    ${html}
-</body>
-</html>
-      `;
-      
-      downloadFile(
-        fullHTML,
-        `firma-${formatFileName($signatureData.fullName)}.html`,
-        'text/html'
-      );
-      
-      showToast('success', 'Archivo HTML descargado correctamente');
-    } catch (error) {
-      console.error('Error downloading HTML:', error);
-      showToast('error', 'Error al descargar HTML');
-    }
-  }
-
-  // Información sobre compatibilidad
-  const emailClients = [
-    { name: 'Gmail', compatible: true, note: 'Totalmente compatible' },
-    { name: 'Outlook', compatible: true, note: 'Compatible con limitaciones de CSS' },
-    { name: 'Apple Mail', compatible: true, note: 'Totalmente compatible' },
-    { name: 'Thunderbird', compatible: true, note: 'Compatible' },
-    { name: 'Yahoo Mail', compatible: false, note: 'Compatibilidad limitada' },
-  ];
 </script>
 
-<div class="space-y-8">
+<div class="space-y-6">
   <!-- Header -->
-  <div>
-    <h2 class="text-2xl font-bold text-gray-900 mb-2">Exportar Firma</h2>
-    <p class="text-gray-600">Descarga o copia tu firma en diferentes formatos</p>
+  <div class="text-center">
+    <h2 class="text-2xl font-bold text-gray-900 mb-2">
+      🎯 Revisar y Descargar Firma
+    </h2>
+    <p class="text-gray-600">
+      Elige cómo quieres exportar tu firma profesional
+    </p>
   </div>
 
-  <!-- Opciones de exportación -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <!-- 4 Botones de Exportación -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     
-    <!-- Copiar HTML -->
-    <div class="card p-6">
-      <div class="flex items-start space-x-4">
-        <div class="flex-shrink-0">
-          <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-            </svg>
-          </div>
+    <!-- 1. Copiar HTML -->
+    <button
+      class="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white p-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      on:click={copyHTML}
+      disabled={isProcessing}
+    >
+      <div class="flex flex-col items-center space-y-3">
+        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
         </div>
-        <div class="flex-1">
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Copiar HTML</h3>
-          <p class="text-sm text-gray-600 mb-4">
-            Copia el código HTML optimizado para clientes de correo electrónico
+        <div class="text-center">
+          <h3 class="font-semibold text-lg">Copiar HTML</h3>
+          <p class="text-sm text-blue-100">
+            Copia el código para pegarlo en tu cliente de correo
           </p>
-          <button
-            class="btn-primary w-full"
-            on:click={copyHTML}
-          >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-            </svg>
-            Copiar HTML
-          </button>
         </div>
       </div>
-    </div>
+      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+    </button>
 
-    <!-- Descargar HTML -->
-    <div class="card p-6">
-      <div class="flex items-start space-x-4">
-        <div class="flex-shrink-0">
-          <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-          </div>
+    <!-- 2. Generar Imagen -->
+    <button
+      class="group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white p-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      on:click={generateImage}
+      disabled={isProcessing}
+    >
+      <div class="flex flex-col items-center space-y-3">
+        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
         </div>
-        <div class="flex-1">
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Descargar HTML</h3>
-          <p class="text-sm text-gray-600 mb-4">
-            Descarga un archivo HTML completo listo para usar
-          </p>
-          <button
-            class="btn-secondary w-full"
-            on:click={downloadHTML}
-          >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M7 13h10v8a2 2 0 01-2 2H9a2 2 0 01-2-2v-8z"></path>
-            </svg>
-            Descargar HTML
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Descargar PNG -->
-    <div class="card p-6">
-      <div class="flex items-start space-x-4">
-        <div class="flex-shrink-0">
-          <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-          </div>
-        </div>
-        <div class="flex-1">
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Imagen PNG</h3>
-          <p class="text-sm text-gray-600 mb-4">
+        <div class="text-center">
+          <h3 class="font-semibold text-lg">Generar Imagen</h3>
+          <p class="text-sm text-emerald-100">
             Descarga tu firma como imagen PNG de alta calidad
           </p>
-          <button
-            class="btn-secondary w-full"
-            on:click={downloadPNG}
-            disabled={isExporting}
-          >
-            {#if isExporting}
-              <svg class="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Generando...
-            {:else}
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-              Descargar PNG
-            {/if}
-          </button>
         </div>
       </div>
-    </div>
+      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+    </button>
 
-    <!-- Generar URL -->
-    <div class="card p-6">
-      <div class="flex items-start space-x-4">
-        <div class="flex-shrink-0">
-          <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-            </svg>
-          </div>
+    <!-- 3. Copiar Texto Plano -->
+    <button
+      class="group relative overflow-hidden bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white p-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      on:click={copyPlainText}
+      disabled={isProcessing}
+    >
+      <div class="flex flex-col items-center space-y-3">
+        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
         </div>
-        <div class="flex-1">
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Generar URL</h3>
-          <p class="text-sm text-gray-600 mb-4">
-            Crea un enlace único para compartir tu firma online
+        <div class="text-center">
+          <h3 class="font-semibold text-lg">Copiar Texto</h3>
+          <p class="text-sm text-purple-100">
+            Copia en formato de texto plano para documentos
           </p>
-          
-          {#if generatedURL}
-            <div class="mb-3 p-3 bg-gray-50 rounded-lg">
-              <p class="text-xs text-gray-500 mb-1">URL generada:</p>
-              <p class="text-sm font-mono text-gray-700 break-all">{generatedURL}</p>
-            </div>
-            <button
-              class="btn-primary w-full"
-              on:click={copyURL}
-            >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-              </svg>
-              Copiar URL
-            </button>
-          {:else}
-            <button
-              class="btn-secondary w-full"
-              on:click={generateURL}
-            >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-              </svg>
-              Generar URL
-            </button>
-          {/if}
         </div>
       </div>
-    </div>
+      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+    </button>
+
+    <!-- 4. Copiar URL con Datos -->
+    <button
+      class="group relative overflow-hidden bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white p-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      on:click={copyPrefilledURL}
+      disabled={isProcessing}
+    >
+      <div class="flex flex-col items-center space-y-3">
+        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+          </svg>
+        </div>
+        <div class="text-center">
+          <h3 class="font-semibold text-lg">Copiar URL</h3>
+          <p class="text-sm text-amber-100">
+            Genera enlace para compartir y rellenar datos automáticamente
+          </p>
+        </div>
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+    </button>
   </div>
 
-  <!-- Compatibilidad -->
-  <div class="card p-6">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-      <svg class="w-4 h-4 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+  <!-- Estado de procesamiento -->
+  {#if isProcessing}
+    <div class="flex items-center justify-center py-8">
+      <div class="flex items-center space-x-3">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+        <span class="text-gray-600 font-medium">Procesando...</span>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Información adicional -->
+  <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border">
+    <h3 class="font-semibold text-gray-900 mb-3 flex items-center">
+      <svg class="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
-      Compatibilidad con Clientes de Email
+      ¿Cómo usar cada opción?
     </h3>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {#each emailClients as client}
-        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-          <div class="flex items-center space-x-3">
-            <div class="w-2 h-2 rounded-full {client.compatible ? 'bg-green-500' : 'bg-yellow-500'}"></div>
-            <span class="font-medium text-gray-900">{client.name}</span>
-          </div>
-          <span class="text-xs text-gray-600">{client.note}</span>
-        </div>
-      {/each}
-    </div>
-    
-    <div class="mt-4 p-4 bg-blue-50 rounded-lg">
-      <h4 class="font-medium text-blue-900 mb-2">💡 Instrucciones de uso:</h4>
-      <ul class="text-sm text-blue-800 space-y-1">
-        <li>• <strong>Gmail/Outlook:</strong> Copia el HTML y pégalo en la configuración de firma</li>
-        <li>• <strong>Apple Mail:</strong> Arrastra la imagen PNG directamente a la configuración</li>
-        <li>• <strong>Otros clientes:</strong> Usa el archivo HTML descargado como referencia</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Instrucciones detalladas -->
-  <div class="card p-6">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4">📋 Cómo usar tu firma</h3>
-    
-    <div class="space-y-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600">
       <div>
-        <h4 class="font-medium text-gray-900 mb-2">En Gmail:</h4>
-        <ol class="text-sm text-gray-600 space-y-1 ml-4 list-decimal">
-          <li>Ve a Configuración → Ver toda la configuración</li>
-          <li>Busca la sección "Firma"</li>
-          <li>Copia y pega el HTML generado</li>
-          <li>Guarda los cambios</li>
-        </ol>
+        <strong class="text-blue-600">📋 HTML:</strong> Para Gmail, Outlook, Apple Mail
       </div>
-      
       <div>
-        <h4 class="font-medium text-gray-900 mb-2">En Outlook:</h4>
-        <ol class="text-sm text-gray-600 space-y-1 ml-4 list-decimal">
-          <li>Ve a Archivo → Opciones → Correo</li>
-          <li>Haz clic en "Firmas..."</li>
-          <li>Crea una nueva firma y pega el HTML</li>
-          <li>Aplica la firma a tus cuentas</li>
-        </ol>
+        <strong class="text-emerald-600">🖼️ Imagen:</strong> Para insertar en documentos
       </div>
-      
       <div>
-        <h4 class="font-medium text-gray-900 mb-2">En Apple Mail:</h4>
-        <ol class="text-sm text-gray-600 space-y-1 ml-4 list-decimal">
-          <li>Ve a Mail → Preferencias → Firmas</li>
-          <li>Arrastra la imagen PNG a la firma</li>
-          <li>O pega el HTML directamente</li>
-        </ol>
+        <strong class="text-purple-600">📄 Texto:</strong> Para Word, Google Docs
+      </div>
+      <div>
+        <strong class="text-amber-600">🔗 URL:</strong> Para compartir configuración
       </div>
     </div>
   </div>

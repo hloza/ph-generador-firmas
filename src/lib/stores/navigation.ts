@@ -38,6 +38,13 @@ export const steps: Step[] = [
     completed: false
   },
   {
+    id: 'image',
+    title: 'Imagen/Logo',
+    description: 'Agrega tu foto o logo personal',
+    path: '/editor/image',
+    completed: false
+  },
+  {
     id: 'design',
     title: 'Personalización',
     description: 'Ajusta colores y estilos',

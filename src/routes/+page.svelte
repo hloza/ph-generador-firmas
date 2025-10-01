@@ -1,9 +1,10 @@
 <script lang="ts">
   import { templates } from '$lib/data/templates.js';
-  import { signatureData } from '$lib/stores/signature.js';
+  import { signatureData, showToast } from '$lib/stores/signature.js';
   import { goto } from '$app/navigation';
   import { markStepAsCompleted, getNextStep } from '$lib/stores/navigation';
   import { onMount } from 'svelte';
+  import { page } from '$app/stores';
 
   // Variable reactiva para obtener el template seleccionado
   $: selectedTemplateId = $signatureData.templateId;
@@ -12,6 +13,45 @@
   let isLoaded = false;
 
   onMount(() => {
+    // Cargar datos desde URL parameters si están disponibles
+    const urlParams = $page.url.searchParams;
+    
+    if (urlParams.size > 0) {
+      const prefilledData: any = {};
+      
+      // Mapear parámetros URL a datos de la firma
+      if (urlParams.get('name')) prefilledData.name = urlParams.get('name');
+      if (urlParams.get('title')) prefilledData.title = urlParams.get('title');
+      if (urlParams.get('company')) prefilledData.company = urlParams.get('company');
+      if (urlParams.get('department')) prefilledData.department = urlParams.get('department');
+      if (urlParams.get('email')) prefilledData.email = urlParams.get('email');
+      if (urlParams.get('phone')) prefilledData.phone = urlParams.get('phone');
+      if (urlParams.get('website')) prefilledData.website = urlParams.get('website');
+      if (urlParams.get('address')) prefilledData.address = urlParams.get('address');
+      if (urlParams.get('primaryColor')) prefilledData.primaryColor = urlParams.get('primaryColor');
+      if (urlParams.get('accentColor')) prefilledData.accentColor = urlParams.get('accentColor');
+      if (urlParams.get('fontFamily')) prefilledData.fontFamily = urlParams.get('fontFamily');
+      if (urlParams.get('templateId')) prefilledData.templateId = urlParams.get('templateId');
+      if (urlParams.get('linkedin')) prefilledData.linkedin = urlParams.get('linkedin');
+      if (urlParams.get('twitter')) prefilledData.twitter = urlParams.get('twitter');
+      if (urlParams.get('github')) prefilledData.github = urlParams.get('github');
+      if (urlParams.get('instagram')) prefilledData.instagram = urlParams.get('instagram');
+      
+      // También mapear campos legacy
+      if (urlParams.get('name') && !prefilledData.fullName) prefilledData.fullName = urlParams.get('name');
+      if (urlParams.get('title') && !prefilledData.position) prefilledData.position = urlParams.get('title');
+      
+      // Actualizar el store con los datos precargados
+      if (Object.keys(prefilledData).length > 0) {
+        signatureData.update(data => ({
+          ...data,
+          ...prefilledData
+        }));
+        
+        showToast('success', '✅ Datos cargados desde URL compartida');
+      }
+    }
+    
     setTimeout(() => {
       isLoaded = true;
     }, 100);
@@ -82,18 +122,17 @@
 
 <div class="h-full px-6 py-6 relative z-10" class:animate-slideInUp={isLoaded}>
   <!-- Grid de plantillas -->  
-  <div class="mb-8 relative">
-    <div class="grid grid-cols-2 gap-4">
+  <div class="mb-6 relative">
+    <div class="grid grid-cols-3 gap-3">
       {#each templates as template, index}
         <button 
           on:click={() => selectTemplate(template.id)}
-          class="relative overflow-hidden rounded-lg transition-all duration-300 cursor-pointer w-full text-left border-2 {selectedTemplateId === template.id ? 'bg-accent/5 border-accent shadow-lg' : 'bg-card border-border shadow-sm hover:shadow-md hover:border-accent/50'}"
+          class="relative overflow-hidden rounded-lg transition-all duration-300 cursor-pointer w-full text-left border-2 template-card {selectedTemplateId === template.id ? 'bg-red-50 border-red-500 shadow-lg selected' : 'bg-white border-gray-300 shadow-sm hover:shadow-md hover:border-red-200'}"
           style="
-            height: 60px;
+            height: 50px;
             animation-delay: {index * 100}ms;
             transform: {selectedTemplateId === template.id ? 'translateY(-1px)' : 'translateY(0)'};
           "
-          class="group template-card {selectedTemplateId === template.id ? 'selected' : ''}"
           on:mouseenter={(e) => {
             if (selectedTemplateId !== template.id) {
               e.currentTarget.style.transform = 'translateY(-4px)';
@@ -116,7 +155,7 @@
           <!-- Contenido principal -->
           <div style="
             position: relative;
-            padding: 12px;
+            padding: 8px;
             height: 100%;
             display: flex;
             align-items: center;
@@ -124,7 +163,7 @@
             z-index: 10;
           ">
             <!-- Solo el nombre -->
-            <h3 class="text-sm font-semibold transition-all duration-300 text-center m-0 {selectedTemplateId === template.id ? 'text-accent' : 'text-card-foreground'}"
+            <h3 class="text-xs font-semibold transition-all duration-300 text-center m-0 {selectedTemplateId === template.id ? 'text-accent' : 'text-card-foreground'}"
                 style="line-height: 1.1;">
               {template.name}
             </h3>
@@ -138,30 +177,24 @@
 
   <!-- Sección de confirmación premium -->
   {#if selectedTemplateId}
-    <div class="text-center">
-      <div class="inline-flex flex-col items-center space-y-8 max-w-2xl mx-auto">
-        <!-- Confirmación elegante -->
-        <div class="flex items-center space-x-6 bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/30 rounded-3xl px-8 py-6 backdrop-blur-xl shadow-2xl">
-          <div class="w-16 h-16 bg-gradient-to-r from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
-            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-            </svg>
-          </div>
-          <div class="text-left">
-            <p class="text-emerald-300 font-bold text-xl">¡Excelente elección!</p>
-            <p class="text-slate-300 text-sm mt-1">
-              <span class="font-bold text-cyan-300">"{selectedTemplate?.name}"</span> - Vista previa disponible en el panel derecho
-            </p>
-          </div>
-        </div>
+    <div class="text-center mt-4">
+      <div class="inline-flex flex-col items-center space-y-4 max-w-xs mx-auto">
+
         
-        <!-- Botón continuar simplificado -->
-        <button 
-          on:click={continueToNextStep}
-          class="bg-accent text-accent-foreground hover:bg-accent-foreground hover:text-accent border-2 border-accent px-8 py-4 rounded-lg font-semibold transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-        >
-          Continuar con {selectedTemplate?.name}
-        </button>
+        <!-- Botón continuar mejorado -->
+        <div class="w-full max-w-sm">
+          <button 
+            on:click={continueToNextStep}
+            class="w-full bg-accent text-accent-foreground hover:bg-accent-foreground hover:text-accent border-2 border-accent px-4 py-3 rounded-lg font-semibold transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm"
+          >
+            <div class="flex items-center justify-center gap-2">
+              <span>Continuar</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </button>
+        </div>
         
 
       </div>

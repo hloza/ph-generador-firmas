@@ -16,20 +16,6 @@ export const templates: Template[] = [
     preview: 'minimal-2',
     category: 'minimal'
   },
-  {
-    id: 'minimal-3',
-    name: 'Minimal Edge',
-    description: 'Bordes suaves con información esencial y diseño despejado',
-    preview: 'minimal-3',
-    category: 'minimal'
-  },
-  {
-    id: 'minimal-4',
-    name: 'Minimal Focus',
-    description: 'Enfoque en el contenido con máxima legibilidad',
-    preview: 'minimal-4',
-    category: 'minimal'
-  },
 
   // === PLANTILLAS PROFESIONALES ===
   {
@@ -46,20 +32,6 @@ export const templates: Template[] = [
     preview: 'professional-2',
     category: 'professional'
   },
-  {
-    id: 'professional-3',
-    name: 'Professional Business',
-    description: 'Formato de tarjeta de negocio digital con información organizada',
-    preview: 'professional-3',
-    category: 'professional'
-  },
-  {
-    id: 'professional-4',
-    name: 'Professional Elite',
-    description: 'Diseño premium con elementos sofisticados y acabados pulidos',
-    preview: 'professional-4',
-    category: 'professional'
-  },
 
   // === PLANTILLAS CREATIVAS ===
   {
@@ -69,55 +41,13 @@ export const templates: Template[] = [
     preview: 'creative-1',
     category: 'creative'
   },
-  {
-    id: 'creative-2',
-    name: 'Creative Flow',
-    description: 'Elementos fluidos con gradientes suaves y movimiento visual',
-    preview: 'creative-2',
-    category: 'creative'
-  },
-  {
-    id: 'creative-3',
-    name: 'Creative Splash',
-    description: 'Diseño artístico con acentos coloridos y tipografía expresiva',
-    preview: 'creative-3',
-    category: 'creative'
-  },
-  {
-    id: 'creative-4',
-    name: 'Creative Studio',
-    description: 'Estilo de estudio creativo con elementos únicos y personalidad',
-    preview: 'creative-4',
-    category: 'creative'
-  },
 
-  // === PLANTILLAS CORPORATIVAS ===
+  // === PLANTILLA CORPORATIVA ===
   {
     id: 'corporate-1',
     name: 'Corporate Premium',
     description: 'Diseño corporativo de alta gama con elementos institucionales',
     preview: 'corporate-1',
-    category: 'corporate'
-  },
-  {
-    id: 'corporate-2',
-    name: 'Corporate Classic',
-    description: 'Estilo tradicional empresarial con estructura formal',
-    preview: 'corporate-2',
-    category: 'corporate'
-  },
-  {
-    id: 'corporate-3',
-    name: 'Corporate Edge',
-    description: 'Corporativo moderno con líneas definidas y presencia sólida',
-    preview: 'corporate-3',
-    category: 'corporate'
-  },
-  {
-    id: 'corporate-4',
-    name: 'Corporate Authority',
-    description: 'Máxima autoridad visual con elementos de liderazgo',
-    preview: 'corporate-4',
     category: 'corporate'
   }
 ];

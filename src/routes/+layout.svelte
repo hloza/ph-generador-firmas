@@ -18,6 +18,8 @@
       setCurrentStep('contact');
     } else if (currentRoute?.includes('/editor/social')) {
       setCurrentStep('social');
+    } else if (currentRoute?.includes('/editor/image')) {
+      setCurrentStep('image');
     } else if (currentRoute?.includes('/editor/design')) {
       setCurrentStep('design');
     } else if (currentRoute?.includes('/editor/preview')) {
@@ -32,7 +34,7 @@
 
 <div class="min-h-screen bg-background text-foreground flex flex-col">
 	<!-- Header mejorado -->
-	<header class="glass-effect border-b border-border flex-shrink-0">
+	<header class="glass-effect border-b border-gray-300 flex-shrink-0">
 		<div class="max-w-full mx-auto px-6 py-4">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-4">
@@ -64,9 +66,9 @@
 	</header>
 
 	<div class="flex flex-1 max-w-full mx-auto p-6 gap-6 w-full overflow-hidden">
-		<!-- Sidebar mejorado con mejor UI - Columna izquierda -->
-		<div style="width: 350px; flex-shrink: 0; height: calc(100vh - 120px); overflow-y: auto;">
-			<nav class="bg-card text-card-foreground p-6 rounded-lg border border-border shadow-lg" style="height: 100%;">
+		<!-- Sidebar expandido con contenido integrado - Columna izquierda -->
+		<div style="width: 450px; flex-shrink: 0; height: calc(100vh - 120px); overflow-y: auto;">
+			<div class="bg-white text-gray-800 p-6 rounded-lg border border-gray-300 shadow-lg" style="height: 100%;">
 				<div class="flex items-center justify-between mb-8">
 					<h2 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Progreso</h2>
 					<div class="flex items-center space-x-1 text-xs text-slate-400">
@@ -91,93 +93,101 @@
 
 				<div class="space-y-3">
 					{#each $stepsStore as step, index}
-						<button 
-							class="step-item w-full {$currentStep === step.id ? 'active' : ''} {step.completed ? 'completed' : ''} group relative overflow-hidden"
-							on:click={() => navigateToStep(step.path)}
-						>
-							<!-- Indicador de conexión vertical -->
-							{#if index < $stepsStore.length - 1}
-								<div class="absolute left-6 top-14 w-0.5 h-6 {step.completed ? 'bg-green-400' : 'bg-slate-700'} transition-colors duration-300"></div>
-							{/if}
-							
-							<div class="step-icon">
-								{#if step.completed}
-									<div class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-										<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-											<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+						<div class="step-container">
+							<button 
+								class="step-item w-full {$currentStep === step.id ? 'active' : ''} {step.completed ? 'completed' : ''} group relative overflow-hidden"
+								on:click={() => navigateToStep(step.path)}
+							>
+								<!-- Indicador de conexión vertical -->
+								{#if index < $stepsStore.length - 1}
+									<div class="absolute left-6 top-14 w-0.5 h-6 {step.completed ? 'bg-green-400' : 'bg-slate-700'} transition-colors duration-300"></div>
+								{/if}
+								
+								<div class="step-icon">
+									{#if step.completed}
+										<div class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+											<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+												<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+											</svg>
+										</div>
+									{:else if $currentStep === step.id}
+										<div class="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold animate-pulse">
+											{index + 1}
+										</div>
+									{:else}
+										<div class="w-5 h-5 bg-slate-700 border-2 border-slate-600 rounded-full flex items-center justify-center text-slate-400 text-sm group-hover:border-blue-400 group-hover:text-blue-400 transition-all duration-200">
+											{index + 1}
+										</div>
+									{/if}
+								</div>
+								<div class="step-content">
+									<h3 class="group-hover:text-white transition-colors duration-200">{step.title}</h3>
+									<p class="group-hover:text-slate-300 transition-colors duration-200">{step.description}</p>
+								</div>
+								
+								<!-- Indicador de expansión -->
+								{#if $currentStep === step.id}
+									<div class="step-expand-icon">
+										<svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
 										</svg>
 									</div>
-								{:else if $currentStep === step.id}
-									<div class="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold animate-pulse">
-										{index + 1}
-									</div>
-								{:else}
-									<div class="w-5 h-5 bg-slate-700 border-2 border-slate-600 rounded-full flex items-center justify-center text-slate-400 text-sm group-hover:border-blue-400 group-hover:text-blue-400 transition-all duration-200">
-										{index + 1}
-									</div>
 								{/if}
-							</div>
-							<div class="step-content">
-								<h3 class="group-hover:text-white transition-colors duration-200">{step.title}</h3>
-								<p class="group-hover:text-slate-300 transition-colors duration-200">{step.description}</p>
-							</div>
-						</button>
+							</button>
+							
+							<!-- Contenido expandido del paso actual -->
+							{#if $currentStep === step.id}
+								<div class="step-expanded-content">
+									<slot />
+								</div>
+							{/if}
+						</div>
 					{/each}
 				</div>
-			</nav>
+			</div>
 		</div>
 
-		<!-- Área de contenido principal y vista previa -->
-		<div class="flex gap-6" style="flex: 1; min-width: 0;">
-			<!-- Contenido principal - Columna central -->
-			<div style="width: 350px; flex-shrink: 0; height: calc(100vh - 120px); overflow-y: auto;">
-				<div class="bg-card text-card-foreground p-6 rounded-lg border border-border shadow-lg" style="height: 100%; min-height: calc(100vh - 120px);">
-					<slot />
-				</div>
-			</div>
-
-			<!-- Vista previa mejorada - Columna derecha flexible -->
-			<div style="flex: 1; min-width: 0; height: calc(100vh - 120px); overflow-y: auto;">
-				<div class="bg-card text-card-foreground p-6 rounded-lg border border-border shadow-lg" style="height: 100%; min-height: calc(100vh - 120px);">
-					<div class="flex items-center justify-between mb-6">
-						<h3 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">Vista Previa</h3>
-						<div class="flex items-center space-x-2">
-							<button class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="Actualizar">
-								<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-								</svg>
-							</button>
-							<button class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="Pantalla completa">
-								<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
-								</svg>
-							</button>
-						</div>
-					</div>
-					
-					<div class="relative">
-						<div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-2xl"></div>
-						<div class="relative bg-gradient-to-br from-slate-700/50 to-slate-800/50 backdrop-blur-sm rounded-2xl p-6 min-h-[400px] flex items-center justify-center border border-slate-600/30">
-							<SignaturePreview />
-						</div>
-						
-						<!-- Indicadores de estado -->
-						<div class="absolute top-3 right-3 flex space-x-2">
-							<div class="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Vista previa activa"></div>
-							<div class="w-2 h-2 bg-blue-400 rounded-full" title="Sincronizado"></div>
-						</div>
-					</div>
-					
-					<!-- Consejos rápidos -->
-					<div class="mt-6 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl border border-blue-500/20">
-						<div class="flex items-start space-x-3">
-							<svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+		<!-- Vista previa expandida - Columna derecha flexible -->
+		<div style="flex: 1; min-width: 0; height: calc(100vh - 120px); overflow-y: auto;">
+			<div class="bg-white text-gray-800 p-6 rounded-lg border border-gray-300 shadow-lg" style="height: 100%; min-height: calc(100vh - 120px);">
+				<div class="flex items-center justify-between mb-6">
+					<h3 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">Vista Previa</h3>
+					<div class="flex items-center space-x-2">
+						<button class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="Actualizar" aria-label="Actualizar vista previa">
+							<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
 							</svg>
-							<div>
-								<p class="text-sm font-medium text-blue-300">Consejo</p>
-								<p class="text-xs text-slate-400 mt-1">Los cambios se reflejan automáticamente en la vista previa</p>
-							</div>
+						</button>
+						<button class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="Pantalla completa" aria-label="Ver en pantalla completa">
+							<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+							</svg>
+						</button>
+					</div>
+				</div>
+				
+				<div class="relative">
+					<div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-2xl"></div>
+					<div class="relative bg-gradient-to-br from-slate-700/50 to-slate-800/50 backdrop-blur-sm rounded-2xl p-6 min-h-[400px] flex items-center justify-center border border-slate-600/30">
+						<SignaturePreview />
+					</div>
+					
+					<!-- Indicadores de estado -->
+					<div class="absolute top-3 right-3 flex space-x-2">
+						<div class="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Vista previa activa"></div>
+						<div class="w-2 h-2 bg-blue-400 rounded-full" title="Sincronizado"></div>
+					</div>
+				</div>
+				
+				<!-- Consejos rápidos -->
+				<div class="mt-6 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl border border-blue-500/20">
+					<div class="flex items-start space-x-3">
+						<svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						</svg>
+						<div>
+							<p class="text-sm font-medium text-blue-300">Consejo</p>
+							<p class="text-xs text-slate-400 mt-1">Los cambios se reflejan automáticamente en la vista previa</p>
 						</div>
 					</div>
 				</div>
@@ -232,6 +242,43 @@
   
   .step-content p {
     @apply text-sm text-slate-400 leading-relaxed;
+  }
+
+  /* Contenedor del paso con contenido expandible */
+  .step-container {
+    @apply relative;
+  }
+
+  /* Icono de expansión */
+  .step-expand-icon {
+    @apply flex-shrink-0 transition-transform duration-300;
+  }
+
+  .step-item.active .step-expand-icon {
+    @apply transform rotate-180;
+  }
+
+  /* Contenido expandido */
+  .step-expanded-content {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: rgba(30, 41, 59, 0.2);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(71, 85, 105, 0.3);
+    backdrop-filter: blur(4px);
+    max-height: 600px;
+    overflow-y: auto;
+    animation: slideInUp 0.6s ease-out forwards;
+  }
+
+  /* Estilo para el contenido de los pasos */
+  .step-expanded-content :global(*) {
+    color: inherit;
+  }
+
+  .step-expanded-content :global(.bg-white) {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
   }
 
   /* Animaciones suaves */

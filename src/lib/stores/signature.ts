@@ -8,6 +8,12 @@ export interface SocialLink {
   enabled: boolean;
 }
 
+export interface ImageData {
+  url: string;
+  shape: 'circle' | 'square' | 'rounded';
+  size: 'small' | 'medium' | 'large';
+}
+
 export interface SignatureData {
   fullName: string;
   position: string;
@@ -21,6 +27,17 @@ export interface SignatureData {
   imageShape: 'circle' | 'square' | 'rounded';
   primaryColor: string;
   templateId: string;
+  image?: ImageData | null;
+  // Campos de personalización
+  name?: string;
+  title?: string;
+  department?: string;
+  linkedin?: string;
+  twitter?: string;
+  github?: string;
+  instagram?: string;
+  accentColor?: string;
+  fontFamily?: string;
 }
 
 export interface Template {
@@ -51,7 +68,17 @@ const initialSignatureData: SignatureData = {
   profileImage: null,
   imageShape: 'circle',
   primaryColor: '#0ea5e9',
-  templateId: 'minimal-1'
+  templateId: 'minimal-1',
+  // Valores por defecto para personalización
+  name: 'Tu nombre',
+  title: 'Tu título profesional',
+  department: '',
+  linkedin: '',
+  twitter: '',
+  github: '',
+  instagram: '',
+  accentColor: '#8b5cf6',
+  fontFamily: 'modern'
 };
 
 // Función para cargar datos del localStorage
@@ -170,3 +197,11 @@ export const signatureStore = {
     showToast('success', 'Plantilla cargada correctamente');
   }
 };
+
+// Función específica para actualizar datos de imagen
+export function setImageData(imageData: ImageData | null) {
+  signatureData.update(data => ({
+    ...data,
+    image: imageData
+  }));
+}
