@@ -2,8 +2,22 @@
   import '../app.css';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { currentStep, stepsStore, setCurrentStep } from '$lib/stores/navigation';
+  import { onMount } from 'svelte';
+  import { currentStep, stepsStore, setCurrentStep, canNavigateToStep } from '$lib/stores/navigation';
+  import { themeStore } from '$lib/stores/theme';
   import SignaturePreview from '$lib/components/SignaturePreview.svelte';
+  import Toast from '$lib/components/Toast.svelte';
+  import { showToast } from '$lib/stores/signature.js';
+
+  // Inicializar tema al montar el componente
+  onMount(() => {
+    themeStore.init();
+  });
+
+  // Función para alternar tema
+  function toggleTheme() {
+    themeStore.toggle();
+  }
 
   // Reactive statement para obtener la ruta actual
   $: currentRoute = $page.route.id;
@@ -18,8 +32,7 @@
       setCurrentStep('contact');
     } else if (currentRoute?.includes('/editor/social')) {
       setCurrentStep('social');
-    } else if (currentRoute?.includes('/editor/image')) {
-      setCurrentStep('image');
+    // Paso de imagen eliminado
     } else if (currentRoute?.includes('/editor/design')) {
       setCurrentStep('design');
     } else if (currentRoute?.includes('/editor/preview')) {
@@ -28,14 +41,23 @@
   }
 
   function navigateToStep(stepPath) {
-    goto(stepPath);
+    // Encontrar el ID del paso basado en la ruta
+    const targetStep = $stepsStore.find(step => step.path === stepPath);
+    if (!targetStep) return;
+    
+    // Verificar si se puede navegar a este paso
+    if (canNavigateToStep(targetStep.id, $stepsStore)) {
+      goto(stepPath);
+    } else {
+      showToast('warning', `⚠️ Completa los pasos anteriores antes de continuar`);
+    }
   }
 </script>
 
-<div class="min-h-screen bg-background text-foreground flex flex-col">
+<div class="bg-background text-foreground flex flex-col">
 	<!-- Header mejorado -->
 	<header class="glass-effect border-b border-gray-300 flex-shrink-0">
-		<div class="max-w-full mx-auto px-6 py-4">
+		<div class="max-w-full mx-auto px-4 py-2">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-4">
 					<div class="bg-primary text-primary-foreground p-3 rounded-lg shadow-lg">
@@ -49,10 +71,22 @@
 					</div>
 				</div>
 				<div class="flex items-center space-x-4">
-					<button class="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted" aria-label="Cambiar tema">
-						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-						</svg>
+					<button 
+						class="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted" 
+						aria-label="Cambiar tema"
+						on:click={toggleTheme}
+					>
+						{#if $themeStore === 'dark'}
+							<!-- Icono de sol para modo claro -->
+							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+							</svg>
+						{:else}
+							<!-- Icono de luna para modo oscuro -->
+							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+							</svg>
+						{/if}
 					</button>
 					<button class="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors">
 						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,11 +99,11 @@
 		</div>
 	</header>
 
-	<div class="flex flex-1 max-w-full mx-auto p-6 gap-6 w-full overflow-hidden">
+	<div class="flex flex-1 max-w-full mx-auto p-3 gap-4 w-full">
 		<!-- Sidebar expandido con contenido integrado - Columna izquierda -->
-		<div style="width: 450px; flex-shrink: 0; height: calc(100vh - 120px); overflow-y: auto;">
-			<div class="bg-white text-gray-800 p-6 rounded-lg border border-gray-300 shadow-lg" style="height: 100%;">
-				<div class="flex items-center justify-between mb-8">
+		<div style="width: 380px; flex-shrink: 0; height: calc(100vh - 80px); overflow-y: auto;">
+			<div class="bg-card text-card-foreground p-4 rounded-lg border border-border shadow-lg">
+				<div class="flex items-center justify-between mb-4">
 					<h2 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Progreso</h2>
 					<div class="flex items-center space-x-1 text-xs text-slate-400">
 						<span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
@@ -78,7 +112,7 @@
 				</div>
 				
 				<!-- Barra de progreso general -->
-				<div class="mb-8">
+				<div class="mb-4">
 					<div class="flex justify-between text-sm text-slate-400 mb-2">
 						<span>Completado</span>
 						<span>{Math.round(($stepsStore.filter(s => s.completed).length / $stepsStore.length) * 100)}%</span>
@@ -148,9 +182,9 @@
 		</div>
 
 		<!-- Vista previa expandida - Columna derecha flexible -->
-		<div style="flex: 1; min-width: 0; height: calc(100vh - 120px); overflow-y: auto;">
-			<div class="bg-white text-gray-800 p-6 rounded-lg border border-gray-300 shadow-lg" style="height: 100%; min-height: calc(100vh - 120px);">
-				<div class="flex items-center justify-between mb-6">
+		<div style="flex: 1; min-width: 0; height: calc(100vh - 80px); overflow-y: auto;">
+			<div class="bg-white text-gray-800 p-4 rounded-lg border border-gray-300 shadow-lg">
+				<div class="flex items-center justify-between mb-3">
 					<h3 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">Vista Previa</h3>
 					<div class="flex items-center space-x-2">
 						<button class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="Actualizar" aria-label="Actualizar vista previa">
@@ -168,7 +202,7 @@
 				
 				<div class="relative">
 					<div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-2xl"></div>
-					<div class="relative bg-gradient-to-br from-slate-700/50 to-slate-800/50 backdrop-blur-sm rounded-2xl p-6 min-h-[400px] flex items-center justify-center border border-slate-600/30">
+					<div class="relative bg-gradient-to-br from-slate-700/50 to-slate-800/50 backdrop-blur-sm rounded-2xl p-4 min-h-[200px] flex items-start justify-center border border-slate-600/30">
 						<SignaturePreview />
 					</div>
 					
@@ -196,13 +230,15 @@
 	</div>
 </div>
 
+<!-- Componente de Toast -->
+<Toast />
+
 <style>
   :global(html) {
-    height: 100%;
+    /* altura removida para permitir contenido dinámico */
   }
   
   :global(body) {
-    height: 100%;
     margin: 0;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
@@ -260,13 +296,13 @@
 
   /* Contenido expandido */
   .step-expanded-content {
-    margin-top: 1rem;
-    padding: 1rem;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
     background-color: rgba(30, 41, 59, 0.2);
     border-radius: 0.75rem;
     border: 1px solid rgba(71, 85, 105, 0.3);
     backdrop-filter: blur(4px);
-    max-height: 600px;
+    max-height: 400px;
     overflow-y: auto;
     animation: slideInUp 0.6s ease-out forwards;
   }

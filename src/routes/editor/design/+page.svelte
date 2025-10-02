@@ -15,6 +15,9 @@
     ...data,
     ...formData
   }));
+  
+  // Marcar paso como completado (el diseño siempre tiene valores por defecto)
+  $: markStepAsCompleted('design');
 
 
 
@@ -64,9 +67,6 @@
     <h1 class="text-3xl font-bold text-white mb-3">
       🎨 Personalización de Diseño
     </h1>
-    <p class="text-slate-300 text-lg leading-relaxed">
-      Ajusta los colores y tipografía de tu firma. La vista previa se actualiza automáticamente en la columna derecha.
-    </p>
   </div>
 
   <!-- Formulario -->

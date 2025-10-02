@@ -38,13 +38,6 @@ export const steps: Step[] = [
     completed: false
   },
   {
-    id: 'image',
-    title: 'Imagen/Logo',
-    description: 'Agrega tu foto o logo personal',
-    path: '/editor/image',
-    completed: false
-  },
-  {
     id: 'design',
     title: 'Personalización',
     description: 'Ajusta colores y estilos',
@@ -85,4 +78,32 @@ export function getNextStep(currentStepId: string): Step | null {
 export function getPreviousStep(currentStepId: string): Step | null {
   const currentIndex = steps.findIndex(step => step.id === currentStepId);
   return currentIndex > 0 ? steps[currentIndex - 1] : null;
+}
+
+export function canNavigateToStep(targetStepId: string, completedSteps: Step[]): boolean {
+  const targetIndex = steps.findIndex(step => step.id === targetStepId);
+  if (targetIndex === -1) return false;
+  
+  // Siempre se puede navegar al primer paso
+  if (targetIndex === 0) return true;
+  
+  // Se puede navegar a un paso si:
+  // 1. El paso ya está completado (navegación libre)
+  // 2. Todos los pasos anteriores están completados (navegación secuencial)
+  const targetStep = completedSteps.find(step => step.id === targetStepId);
+  if (targetStep?.completed) return true;
+  
+  // Verificar que todos los pasos anteriores estén completados
+  for (let i = 0; i < targetIndex; i++) {
+    const previousStep = completedSteps.find(step => step.id === steps[i].id);
+    if (!previousStep?.completed) return false;
+  }
+  
+  return true;
+}
+
+export function markAllStepsAsCompleted() {
+  stepsStore.update(steps => {
+    return steps.map(step => ({ ...step, completed: true }));
+  });
 }

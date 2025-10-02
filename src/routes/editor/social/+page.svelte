@@ -50,6 +50,13 @@
     }
   }
 
+  $: hasAnySocial = Object.values(formData).some(value => value.trim() !== '');
+  
+  // Marcar paso como completado cuando hay al menos una red social
+  $: if (hasAnySocial) {
+    markStepAsCompleted('social');
+  }
+
   $: hasAnySocial = Object.values(formData).some(value => value.trim());
 </script>
 
@@ -63,9 +70,6 @@
     <h1 class="text-3xl font-bold text-white mb-3">
       🔗 Redes Sociales
     </h1>
-    <p class="text-slate-300 text-lg leading-relaxed">
-      Conecta tus perfiles sociales para expandir tu presencia digital. La vista previa se actualiza automáticamente en la columna derecha.
-    </p>
   </div>
 
   <!-- Formulario -->

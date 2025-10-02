@@ -1,53 +1,74 @@
 @import "tailwindcss";
 
-/* Paleta de colores personalizada */
+/* Paleta de colores para modo claro */
 :root {
-  --color-background: #FCFAEE;
-  --color-foreground: #384B70;
-  --color-primary: #384B70;
-  --color-secondary: #507687;
-  --color-accent: #B8001F;
+  --color-background: #ffffff;
+  --color-foreground: #0f172a;
+  --color-primary: #3b82f6;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #64748b;
+  --color-accent: #f59e0b;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+  --color-border: #e2e8f0;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+}
+
+/* Paleta de colores para modo oscuro */
+:root.dark {
+  --color-background: #0f172a;
+  --color-foreground: #f8fafc;
+  --color-primary: #3b82f6;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #a855f7;
+  --color-accent: #f59e0b;
+  --color-muted: #1e293b;
+  --color-muted-foreground: #94a3b8;
+  --color-border: #334155;
+  --color-card: #1e293b;
+  --color-card-foreground: #f8fafc;
 }
 
 body {
-  background-color: #FCFAEE;
-  color: #384B70;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
-.border-slate-600 { border-color: #475569; }
-.border-slate-700 { border-color: #334155; }
-.border-blue-400 { border-color: #60a5fa; }
-.border-blue-500 { border-color: #3b82f6; }
-.text-slate-200 { color: #e2e8f0; }
-.text-slate-300 { color: #cbd5e1; }
-.text-slate-400 { color: #94a3b8; }
-.bg-blue-600 { background-color: #2563eb; }
-.hover\:bg-blue-700:hover { background-color: #1d4ed8; }
-.focus\:outline-none:focus { outline: none; }
-.focus\:ring-2:focus { box-shadow: 0 0 0 2px var(--tw-ring-color); }
-.focus\:ring-offset-2:focus { box-shadow: 0 0 0 2px transparent, 0 0 0 4px var(--tw-ring-color); }
-.focus\:ring-blue-500:focus { --tw-ring-color: #3b82f6; }
-.transition-colors { transition-property: color, background-color, border-color; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 0.15s; }
-.bg-transparent { background-color: transparent; }
-.hover\:bg-slate-700:hover { background-color: #334155; }
-.hover\:bg-slate-500:hover { background-color: #64748b; }
-.border-slate-600 { border-color: #475569; }
-.bg-slate-600 { background-color: #475569; }
-.bg-slate-700 { background-color: #334155; }
-.bg-slate-800 { background-color: #1e293b; }
-.bg-blue-900 { background-color: #1e3a8a; }
-.text-red-400 { color: #f87171; }
-.placeholder-slate-400::placeholder { color: #94a3b8; }
-.focus\:border-transparent:focus { border-color: transparent; }
-.focus\:ring-slate-500:focus { --tw-ring-color: #64748b; }
-.w-4 { width: 1rem; }
-.h-4 { height: 1rem; }
-.mr-2 { margin-right: 0.5rem; }
-.flex-col { flex-direction: column; }
-.text-sm { font-size: 0.875rem; }
-.mt-2 { margin-top: 0.5rem; }
+
+/* Clases de utilidad básicas */
 .p-4 { padding: 1rem; }
-.p-5 { padding: 1.25rem; }
 .p-6 { padding: 1.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.text-sm { font-size: 0.875rem; }
+.text-center { text-align: center; }
+.flex { display: flex; }
+.grid { display: grid; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.space-x-2 > * + * { margin-left: 0.5rem; }
+.space-x-4 > * + * { margin-left: 1rem; }
+.space-y-4 > * + * { margin-top: 1rem; }
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.rounded { border-radius: 0.25rem; }
+.rounded-lg { border-radius: 0.5rem; }
+.bg-primary { background-color: var(--color-primary); }
+.bg-primary-foreground { background-color: var(--color-primary-foreground); }
+.bg-card { background-color: var(--color-card); }
+.bg-muted { background-color: var(--color-muted); }
+.text-foreground { color: var(--color-foreground); }
+.text-card-foreground { color: var(--color-card-foreground); }
+.text-muted-foreground { color: var(--color-muted-foreground); }
+.text-primary-foreground { color: var(--color-primary-foreground); }
+.border { border-width: 1px; }
+.border-border { border-color: var(--color-border); }
+.shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); }
+.hover\:bg-muted:hover { background-color: var(--color-muted); }
+.hover\:text-foreground:hover { color: var(--color-foreground); }
+.transition { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter; }
+.duration-200 { transition-duration: 200ms; }
 .p-8 { padding: 2rem; }
 .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
 .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }

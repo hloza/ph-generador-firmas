@@ -8,12 +8,6 @@ export interface SocialLink {
   enabled: boolean;
 }
 
-export interface ImageData {
-  url: string;
-  shape: 'circle' | 'square' | 'rounded';
-  size: 'small' | 'medium' | 'large';
-}
-
 export interface SignatureData {
   fullName: string;
   position: string;
@@ -23,11 +17,8 @@ export interface SignatureData {
   address: string;
   company: string;
   socialLinks: SocialLink[];
-  profileImage: string | null;
-  imageShape: 'circle' | 'square' | 'rounded';
   primaryColor: string;
   templateId: string;
-  image?: ImageData | null;
   // Campos de personalización
   name?: string;
   title?: string;
@@ -50,28 +41,26 @@ export interface Template {
 
 // Estado inicial
 const initialSignatureData: SignatureData = {
-  fullName: 'Juan Pérez',
-  position: 'Desarrollador Full Stack',
-  email: 'juan.perez@ejemplo.com',
-  phone: '+34 600 123 456',
-  website: 'https://juanperez.dev',
-  address: 'Madrid, España',
-  company: 'Tech Solutions S.L.',
+  fullName: '',
+  position: '',
+  email: '',
+  phone: '',
+  website: '',
+  address: '',
+  company: '',
   socialLinks: [
-    { platform: 'linkedin', url: 'https://linkedin.com/in/juanperez', enabled: true },
-    { platform: 'twitter', url: 'https://twitter.com/juanperez', enabled: false },
-    { platform: 'github', url: 'https://github.com/juanperez', enabled: true },
+    { platform: 'linkedin', url: '', enabled: false },
+    { platform: 'twitter', url: '', enabled: false },
+    { platform: 'github', url: '', enabled: false },
     { platform: 'instagram', url: '', enabled: false },
     { platform: 'facebook', url: '', enabled: false },
     { platform: 'youtube', url: '', enabled: false }
   ],
-  profileImage: null,
-  imageShape: 'circle',
   primaryColor: '#0ea5e9',
   templateId: 'minimal-1',
   // Valores por defecto para personalización
-  name: 'Tu nombre',
-  title: 'Tu título profesional',
+  name: '',
+  title: '',
   department: '',
   linkedin: '',
   twitter: '',
@@ -81,10 +70,42 @@ const initialSignatureData: SignatureData = {
   fontFamily: 'modern'
 };
 
-// Función para cargar datos del localStorage
+// Función para cargar datos del localStorage o desde URL
 function loadFromStorage(): SignatureData {
   if (!browser) return initialSignatureData;
   
+  // Primero intentar cargar desde URL params
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('name') || urlParams.has('email') || urlParams.has('company')) {
+      const urlData: Partial<SignatureData> = {};
+      
+      // Cargar todos los parámetros posibles de la URL
+      if (urlParams.get('name')) urlData.name = urlParams.get('name')!;
+      if (urlParams.get('fullName')) urlData.fullName = urlParams.get('fullName')!;
+      if (urlParams.get('title')) urlData.title = urlParams.get('title')!;
+      if (urlParams.get('position')) urlData.position = urlParams.get('position')!;
+      if (urlParams.get('company')) urlData.company = urlParams.get('company')!;
+      if (urlParams.get('department')) urlData.department = urlParams.get('department')!;
+      if (urlParams.get('email')) urlData.email = urlParams.get('email')!;
+      if (urlParams.get('phone')) urlData.phone = urlParams.get('phone')!;
+      if (urlParams.get('website')) urlData.website = urlParams.get('website')!;
+      if (urlParams.get('address')) urlData.address = urlParams.get('address')!;
+      if (urlParams.get('linkedin')) urlData.linkedin = urlParams.get('linkedin')!;
+      if (urlParams.get('twitter')) urlData.twitter = urlParams.get('twitter')!;
+      if (urlParams.get('github')) urlData.github = urlParams.get('github')!;
+      if (urlParams.get('instagram')) urlData.instagram = urlParams.get('instagram')!;
+      if (urlParams.get('templateId')) urlData.templateId = urlParams.get('templateId')!;
+      
+      // Lógica de imagen eliminada
+      
+      return { ...initialSignatureData, ...urlData };
+    }
+  } catch (error) {
+    console.error('Error loading from URL:', error);
+  }
+  
+  // Luego intentar cargar desde localStorage
   try {
     const stored = localStorage.getItem('signatureData');
     if (stored) {
@@ -98,8 +119,26 @@ function loadFromStorage(): SignatureData {
   return initialSignatureData;
 }
 
+// Función para limpiar datos si es necesario
+function initializeData(): SignatureData {
+  if (!browser) return initialSignatureData;
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  const hasUrlParams = urlParams.has('name') || urlParams.has('email') || urlParams.has('company');
+  const isHomePage = window.location.pathname === '/';
+  
+  // Si es la página principal y no hay parámetros URL, limpiar localStorage y usar datos vacíos
+  if (isHomePage && !hasUrlParams) {
+    localStorage.removeItem('signatureData');
+    return initialSignatureData;
+  }
+  
+  // Si hay parámetros URL o no es la página principal, cargar normalmente
+  return loadFromStorage();
+}
+
 // Stores principales
-export const signatureData = writable<SignatureData>(loadFromStorage());
+export const signatureData = writable<SignatureData>(initializeData());
 export const currentStep = writable<'template' | 'editor' | 'export'>('template');
 export const isDesktopPreview = writable<boolean>(true);
 export const isLoading = writable<boolean>(false);
@@ -198,10 +237,4 @@ export const signatureStore = {
   }
 };
 
-// Función específica para actualizar datos de imagen
-export function setImageData(imageData: ImageData | null) {
-  signatureData.update(data => ({
-    ...data,
-    image: imageData
-  }));
-}
+// Función de imagen eliminada

@@ -41,6 +41,11 @@
   }
 
   $: isFormValid = formData.email.trim();
+  
+  // Marcar paso como completado cuando el formulario sea válido
+  $: if (isFormValid) {
+    markStepAsCompleted('contact');
+  }
 </script>
 
 <svelte:head>

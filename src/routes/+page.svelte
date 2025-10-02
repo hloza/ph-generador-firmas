@@ -2,7 +2,7 @@
   import { templates } from '$lib/data/templates.js';
   import { signatureData, showToast } from '$lib/stores/signature.js';
   import { goto } from '$app/navigation';
-  import { markStepAsCompleted, getNextStep } from '$lib/stores/navigation';
+  import { markStepAsCompleted, getNextStep, markAllStepsAsCompleted } from '$lib/stores/navigation';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
 
@@ -48,6 +48,9 @@
           ...prefilledData
         }));
         
+        // Marcar todos los pasos como completados cuando se cargan datos desde URL
+        markAllStepsAsCompleted();
+        
         showToast('success', '✅ Datos cargados desde URL compartida');
       }
     }
@@ -62,6 +65,9 @@
       ...data,
       templateId
     }));
+    
+    // Marcar el paso de plantilla como completado
+    markStepAsCompleted('template');
   }
 
   function continueToNextStep() {
@@ -112,7 +118,7 @@
 </svelte:head>
 
 <!-- Contenido principal -->
-<div class="relative min-h-screen gradient-bg">
+<div class="relative gradient-bg">
   <!-- Efectos de fondo sutiles -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none">
     <!-- Orbes sutiles -->
@@ -120,9 +126,9 @@
     <div class="absolute bottom-20 left-20 w-48 h-48 rounded-full blur-3xl animate-pulse opacity-10" style="background: var(--secondary); animation-duration: 8s;"></div>
   </div>
 
-<div class="h-full px-6 py-6 relative z-10" class:animate-slideInUp={isLoaded}>
+<div class="px-4 py-1 relative z-10" class:animate-slideInUp={isLoaded}>
   <!-- Grid de plantillas -->  
-  <div class="mb-6 relative">
+  <div class="mb-2 relative">
     <div class="grid grid-cols-3 gap-3">
       {#each templates as template, index}
         <button 
@@ -177,8 +183,8 @@
 
   <!-- Sección de confirmación premium -->
   {#if selectedTemplateId}
-    <div class="text-center mt-4">
-      <div class="inline-flex flex-col items-center space-y-4 max-w-xs mx-auto">
+    <div class="text-center mt-1">
+      <div class="inline-flex flex-col items-center space-y-2 max-w-xs mx-auto">
 
         
         <!-- Botón continuar mejorado -->
@@ -201,7 +207,7 @@
     </div>
   {:else}
     <!-- Estado sin selección -->
-    <div class="text-center py-16 px-5">
+    <div class="text-center py-4 px-5">
       <div class="max-w-md mx-auto">
         <div class="w-30 h-30 bg-muted/20 rounded-full flex items-center justify-center border-3 border-dashed border-muted-foreground/30 mx-auto mb-8">
           <svg class="w-12 h-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">

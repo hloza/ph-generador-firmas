@@ -22,6 +22,11 @@
     }
   });
 
+  // Reactividad para actualizar datos cuando cambian las propiedades
+  $: if (imagePreview) {
+    updateImageData();
+  }
+
   function handleFileSelect(event: Event) {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
@@ -60,6 +65,11 @@
       shape: imageShape,
       size: imageSize
     });
+    
+    // Marcar paso como completado cuando hay imagen
+    if (imagePreview) {
+      markStepAsCompleted('image');
+    }
   }
 
   function removeImage() {
