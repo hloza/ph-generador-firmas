@@ -42,8 +42,83 @@
     
     const fontStyle = fontFamilyStyles[fontFamily as keyof typeof fontFamilyStyles];
     
-    // Función para generar imagen - ELIMINADA
-    const getImageHtml = () => '';
+    // Función para generar imagen de perfil
+    const getImageHtml = (forDesktop = false) => {
+      if (!$signatureData.image?.url) return '';
+      
+      const imageData = $signatureData.image;
+      const size = imageData.size || 'medium';
+      const shape = imageData.shape || 'circle';
+      
+      // Tamaños más grandes según el dispositivo y configuración
+      const sizeMap = {
+        small: isMobile ? '60px' : '80px',
+        medium: isMobile ? '70px' : '100px',
+        large: isMobile ? '80px' : '120px'
+      };
+      
+      const imageSize = sizeMap[size];
+      
+      // Estilos según la forma
+      const shapeStyles = {
+        circle: 'border-radius: 50%;',
+        square: 'border-radius: 0;',
+        rounded: 'border-radius: 12px;'
+      };
+      
+      const shapeStyle = shapeStyles[shape];
+      
+      // En móvil, la imagen debe ir arriba de todo y centrada
+      if (isMobile) {
+        return `
+          <div style="text-align: center; margin-bottom: 16px; width: 100%; padding: 0;">
+            <img 
+              src="${imageData.url}" 
+              alt="Foto de perfil" 
+              style="
+                width: ${imageSize}; 
+                height: ${imageSize}; 
+                object-fit: cover; 
+                ${shapeStyle}
+                border: 3px solid ${primaryColor}40;
+                display: block;
+                margin: 0 auto;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+              " 
+            />
+          </div>
+        `;
+      }
+      
+      // En desktop, usar un contenedor más robusto para evitar recortes
+      return `
+        <div style="
+          display: flex; 
+          align-items: center; 
+          justify-content: center;
+          flex-shrink: 0;
+          margin-right: ${forDesktop ? '0' : '16px'}; 
+          margin-bottom: ${forDesktop ? '16px' : '0'};
+          padding: 4px;
+          width: ${forDesktop ? 'auto' : `calc(${imageSize} + 12px)`};
+          height: ${forDesktop ? 'auto' : `calc(${imageSize} + 12px)`};
+        ">
+          <img 
+            src="${imageData.url}" 
+            alt="Foto de perfil" 
+            style="
+              width: ${imageSize}; 
+              height: ${imageSize}; 
+              object-fit: cover; 
+              ${shapeStyle}
+              border: 3px solid ${primaryColor}40;
+              display: block;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            " 
+          />
+        </div>
+      `;
+    };
     
     // Función para generar iconos de redes sociales
     const getSocialIcons = () => {
@@ -92,8 +167,10 @@
     const previews = {
       // MINIMAL CLEAN - Diseño ultra limpio con imagen a la izquierda en desktop
       'minimal-1': `
-        <div style="${fontStyle} max-width: 360px; ${isMobile ? 'text-align: center; padding: 12px;' : 'display: flex; align-items: flex-start; gap: 12px;'}">
-          <div style="${isMobile ? '' : 'flex: 1;'}">
+        <div style="${fontStyle} max-width: 650px; width: 100%; ${isMobile ? 'text-align: center; padding: 20px;' : 'display: flex; align-items: flex-start; gap: 20px; padding: 16px;'}">
+          ${isMobile ? getImageHtml() : ''}
+          ${!isMobile && $signatureData.image?.url ? getImageHtml(true) : ''}
+          <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
             <h3 style="color: ${primaryColor}; margin: 0 0 4px 0; font-size: ${isMobile ? '14px' : '16px'}; font-weight: 600; line-height: 1.2;">${name}</h3>
             <p style="color: ${accentColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '11px' : '12px'}; font-weight: 500;">${title}</p>
             ${company !== 'Tu empresa' ? `<p style="color: #666; margin: 0 0 6px 0; font-size: ${isMobile ? '10px' : '11px'}; font-style: italic;">${company}${department}</p>` : ''}
@@ -112,8 +189,10 @@
 
       // MINIMAL LINES - Con líneas separadoras elegantes
       'minimal-2': `
-        <div style="${fontStyle} max-width: 380px; ${isMobile ? 'text-align: center; padding: 12px;' : 'display: flex; align-items: flex-start; gap: 12px;'}">
-          <div style="${isMobile ? '' : 'flex: 1;'}">
+        <div style="${fontStyle} max-width: 670px; width: 100%; ${isMobile ? 'text-align: center; padding: 20px;' : 'display: flex; align-items: flex-start; gap: 20px; padding: 16px;'}">
+          ${isMobile ? getImageHtml() : ''}
+          ${!isMobile && $signatureData.image?.url ? getImageHtml(true) : ''}
+          <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
             <h3 style="color: ${primaryColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '15px' : '17px'}; font-weight: 300; letter-spacing: 0.5px;">${name}</h3>
             <div style="width: 20px; height: 1px; background: ${accentColor}; margin: 0 ${isMobile ? 'auto' : '0'} 4px ${isMobile ? 'auto' : '0'};"></div>
             <p style="color: ${accentColor}; margin: 0 0 4px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">${title}</p>
@@ -133,10 +212,10 @@
 
       // PROFESSIONAL EXECUTIVE - Diseño ejecutivo con jerarquía clara
       'professional-1': `
-        <div style="${fontStyle} max-width: 400px; ${isMobile ? 'padding: 12px; text-align: center;' : 'display: flex; align-items: flex-start; gap: 16px; padding: 10px; border-left: 3px solid ' + primaryColor + ';'}">
+        <div style="${fontStyle} max-width: 690px; width: 100%; ${isMobile ? 'padding: 20px; text-align: center;' : 'display: flex; align-items: flex-start; gap: 24px; padding: 18px; border-left: 4px solid ' + primaryColor + ';'}">
           ${isMobile ? getImageHtml() : ''}
           ${!isMobile && $signatureData.image?.url ? getImageHtml(true) : ''}
-          <div style="${isMobile ? '' : 'flex: 1;'}">
+          <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
             <h3 style="color: ${primaryColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '16px' : '18px'}; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">${name}</h3>
             <p style="color: ${accentColor}; margin: 0 0 2px 0; font-size: ${isMobile ? '11px' : '12px'}; font-weight: 600; letter-spacing: 0.5px;">${title}</p>
             ${company !== 'Tu empresa' ? `<p style="color: #333; margin: 0 0 8px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 500; border-bottom: 1px solid #ddd; padding-bottom: 4px;">${company}${department}</p>` : ''}
@@ -155,15 +234,15 @@
 
       // PROFESSIONAL MODERN - Moderno con estructura equilibrada
       'professional-2': `
-        <div style="${fontStyle} max-width: 420px; ${isMobile ? 'padding: 12px; text-align: center;' : 'display: flex; align-items: flex-start; gap: 14px; background: linear-gradient(135deg, ' + primaryColor + '08, ' + accentColor + '05); padding: 12px; border-radius: 6px;'}">
+        <div style="${fontStyle} max-width: 710px; width: 100%; ${isMobile ? 'padding: 20px; text-align: center;' : 'display: flex; align-items: flex-start; gap: 22px; background: linear-gradient(135deg, ' + primaryColor + '08, ' + accentColor + '05); padding: 20px; border-radius: 10px;'}">
           ${isMobile ? getImageHtml() : ''}
           ${!isMobile && $signatureData.image?.url ? getImageHtml(true) : ''}
-          <div style="${isMobile ? '' : 'flex: 1;'}">
+          <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
             <h3 style="color: ${primaryColor}; margin: 0 0 4px 0; font-size: ${isMobile ? '15px' : '17px'}; font-weight: 600; letter-spacing: 0.3px;">${name}</h3>
             <div style="background: ${accentColor}; color: white; display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: ${isMobile ? '9px' : '10px'}; font-weight: 600; margin-bottom: 6px;">${title.toUpperCase()}</div>
             ${company !== 'Tu empresa' ? `<p style="color: #444; margin: 0 0 8px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 500;">${company}${department}</p>` : ''}
             
-            <div style="background: white; padding: 8px; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: ${isMobile ? '9px' : '10px'}; color: #666;">
+            <div style="background: white; padding: 10px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-size: ${isMobile ? '9px' : '10px'}; color: #666;">
               ${email !== 'tu.email@empresa.com' ? `<div style="margin-bottom: 3px; display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/fluency/48/mail--v1.png" alt="Email" style="width: 12px; height: 12px;" /> ${email}</div>` : ''}
               ${phone !== '+34 xxx xxx xxx' ? `<div style="margin-bottom: 3px; display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/color/48/phone.png" alt="Phone" style="width: 12px; height: 12px;" /> ${phone}</div>` : ''}
               ${website ? `<div style="margin-bottom: 3px; display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/color/48/internet--v1.png" alt="Website" style="width: 12px; height: 12px;" /> ${website}</div>` : ''}
@@ -177,15 +256,15 @@
 
       // CREATIVE BOLD - Colores vibrantes y diseño dinámico
       'creative-1': `
-        <div style="${fontStyle} max-width: 440px; ${isMobile ? 'padding: 16px; text-align: center;' : 'display: flex; align-items: flex-start; gap: 16px; background: linear-gradient(45deg, ' + primaryColor + '15, ' + accentColor + '15); padding: 16px; border-radius: 12px; border: 2px solid ' + primaryColor + '30;'}">
+        <div style="${fontStyle} max-width: 730px; width: 100%; ${isMobile ? 'padding: 24px; text-align: center;' : 'display: flex; align-items: flex-start; gap: 24px; background: linear-gradient(45deg, ' + primaryColor + '15, ' + accentColor + '15); padding: 24px; border-radius: 14px; border: 2px solid ' + primaryColor + '30;'}">
           ${isMobile ? getImageHtml() : ''}
           ${!isMobile && $signatureData.image?.url ? getImageHtml(true) : ''}
-          <div style="${isMobile ? '' : 'flex: 1;'}">
+          <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
             <h3 style="background: linear-gradient(45deg, ${primaryColor}, ${accentColor}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0 0 6px 0; font-size: ${isMobile ? '18px' : '20px'}; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">${name}</h3>
             <div style="background: linear-gradient(135deg, ${accentColor}, ${primaryColor}); color: white; display: inline-block; padding: 4px 12px; border-radius: 18px; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 700; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">${title}</div>
             ${company !== 'Tu empresa' ? `<p style="color: #333; margin: 0 0 10px 0; font-size: ${isMobile ? '11px' : '12px'}; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">${company}${department}</p>` : ''}
             
-            <div style="background: rgba(255,255,255,0.9); padding: 10px; border-radius: 8px; box-shadow: 0 3px 12px rgba(0,0,0,0.15); font-size: ${isMobile ? '9px' : '10px'}; color: #555;">
+            <div style="background: rgba(255,255,255,0.9); padding: 12px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); font-size: ${isMobile ? '9px' : '10px'}; color: #555;">
               ${email !== 'tu.email@empresa.com' ? `<div style="margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><span style="background: ${primaryColor}; color: white; padding: 3px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;"><img src="https://img.icons8.com/fluency/48/mail--v1.png" alt="Email" style="width: 8px; height: 8px; filter: brightness(0) invert(1);" /></span> ${email}</div>` : ''}
               ${phone !== '+34 xxx xxx xxx' ? `<div style="margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><span style="background: ${accentColor}; color: white; padding: 3px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;"><img src="https://img.icons8.com/color/48/phone.png" alt="Phone" style="width: 8px; height: 8px; filter: brightness(0) invert(1);" /></span> ${phone}</div>` : ''}
               ${website ? `<div style="margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><span style="background: ${primaryColor}; color: white; padding: 3px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;"><img src="https://img.icons8.com/color/48/internet--v1.png" alt="Website" style="width: 8px; height: 8px; filter: brightness(0) invert(1);" /></span> ${website}</div>` : ''}
@@ -199,16 +278,16 @@
 
       // CORPORATE PREMIUM - Diseño institucional de alta gama
       'corporate-1': `
-        <div style="${fontStyle} max-width: 460px; ${isMobile ? 'padding: 14px; text-align: center;' : 'display: flex; align-items: flex-start; gap: 18px; background: #f8f9fa; border: 1px solid #e9ecef; border-left: 4px solid ' + primaryColor + '; padding: 16px;'}">
+        <div style="${fontStyle} max-width: 750px; width: 100%; ${isMobile ? 'padding: 22px; text-align: center;' : 'display: flex; align-items: flex-start; gap: 26px; background: #f8f9fa; border: 1px solid #e9ecef; border-left: 4px solid ' + primaryColor + '; padding: 24px;'}">
           ${isMobile ? getImageHtml() : ''}
           ${!isMobile && $signatureData.image?.url ? getImageHtml(true) : ''}
-          <div style="${isMobile ? '' : 'flex: 1;'}">
+          <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
             <h3 style="color: ${primaryColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '16px' : '18px'}; font-weight: 400; letter-spacing: 0.5px; font-family: Georgia, serif;">${name}</h3>
             <div style="width: 40px; height: 2px; background: linear-gradient(to right, ${primaryColor}, ${accentColor}); margin: 0 ${isMobile ? 'auto' : '0'} 6px ${isMobile ? 'auto' : '0'};"></div>
             <p style="color: ${accentColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '12px' : '13px'}; font-weight: 600; font-style: italic;">${title}</p>
             ${company !== 'Tu empresa' ? `<p style="color: #666; margin: 0 0 8px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 500; font-family: Georgia, serif;">${company}${department}</p>` : ''}
             
-            <div style="border-top: 1px solid ${primaryColor}30; border-bottom: 1px solid ${primaryColor}30; padding: 6px 0; margin: 6px 0; font-size: ${isMobile ? '9px' : '10px'}; color: #555; font-family: Georgia, serif;">
+            <div style="border-top: 1px solid ${primaryColor}30; border-bottom: 1px solid ${primaryColor}30; padding: 8px 0; margin: 8px 0; font-size: ${isMobile ? '9px' : '10px'}; color: #555; font-family: Georgia, serif;">
               ${email !== 'tu.email@empresa.com' ? `<div style="margin-bottom: 3px; text-align: ${isMobile ? 'center' : 'left'};">${email}</div>` : ''}
               ${phone !== '+34 xxx xxx xxx' ? `<div style="margin-bottom: 3px; text-align: ${isMobile ? 'center' : 'left'};">${phone}</div>` : ''}
               ${website ? `<div style="margin-bottom: 3px; text-align: ${isMobile ? 'center' : 'left'};">${website}</div>` : ''}

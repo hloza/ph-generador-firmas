@@ -23,11 +23,6 @@
       // Crear una copia de los datos para incluir la imagen
       const dataWithImage = { ...$signatureData };
       
-      // Si hay imagen, asegurar que la URL esté incluida
-      if ($signatureData.image?.url) {
-        dataWithImage.profileImage = $signatureData.image.url;
-      }
-      
       let html = generateSignatureHTML(dataWithImage);
       
       // Si hay imagen, convertirla a base64 e incluirla en el HTML
@@ -257,18 +252,8 @@
 </script>
 
 <div class="space-y-6">
-  <!-- Header -->
-  <div class="text-center">
-    <h2 class="text-2xl font-bold text-gray-900 mb-2">
-      🎯 Revisar y Descargar Firma
-    </h2>
-    <p class="text-gray-600">
-      Elige cómo quieres exportar tu firma profesional
-    </p>
-  </div>
-
   <!-- 4 Botones de Exportación -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     
     <!-- 1. Copiar HTML -->
     <button
@@ -307,41 +292,16 @@
         <div class="text-center">
           <h3 class="font-semibold text-sm">Generar Imagen</h3>
           <p class="text-xs text-emerald-100">
-            Descarga como PNG de alta calidad
+            Descarga como PNG
           </p>
         </div>
       </div>
       <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
     </button>
 
-    <!-- 3. Copiar con Formato -->
+    <!-- 3. Copiar URL -->
     <button
       class="group relative overflow-hidden bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white p-4 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-      on:click={copyPlainText}
-      disabled={isProcessing}
-    >
-      <div class="flex flex-col items-center space-y-2">
-        <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 001 1h8a1 1 0 001-1V3a2 2 0 012 2v6h-2V5H6v6H4V5z" clip-rule="evenodd"/>
-            <path d="M6 13a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2v-8zm2 2v6h8v-6H8z"/>
-            <path d="M8 17a1 1 0 011-1h6a1 1 0 110 2H9a1 1 0 01-1-1zm1 2a1 1 0 100 2h3a1 1 0 100-2H9z"/>
-          </svg>
-        </div>
-        <div class="text-center">
-          <h3 class="font-semibold text-sm">Copiar con Formato</h3>
-          <p class="text-xs text-purple-100">
-            Con imágenes e iconos
-          </p>
-        </div>
-      </div>
-      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-    </button>
-
-    <!-- 4. Copiar URL con Datos -->
-    <button
-      class="group relative overflow-hidden bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white p-4 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
       on:click={copyPrefilledURL}
       disabled={isProcessing}
     >
@@ -353,8 +313,30 @@
         </div>
         <div class="text-center">
           <h3 class="font-semibold text-sm">Copiar URL</h3>
-          <p class="text-xs text-amber-100">
-            Enlace para compartir datos
+          <p class="text-xs text-purple-100">
+            Enlace con datos precargados
+          </p>
+        </div>
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+    </button>
+
+    <!-- 4. Copiar Texto Tabla -->
+    <button
+      class="group relative overflow-hidden bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white p-4 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      on:click={copyPlainText}
+      disabled={isProcessing}
+    >
+      <div class="flex flex-col items-center space-y-2">
+        <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <div class="text-center">
+          <h3 class="font-semibold text-sm">Copiar Tabla</h3>
+          <p class="text-xs text-orange-100">
+            Formato rico con imágenes
           </p>
         </div>
       </div>
@@ -388,10 +370,10 @@
         <strong class="text-emerald-600">🖼️ Imagen:</strong> Para insertar en documentos
       </div>
       <div>
-        <strong class="text-purple-600">📄 Texto:</strong> Para Word, Google Docs
+        <strong class="text-purple-600">🔗 URL:</strong> Enlace para compartir formulario
       </div>
       <div>
-        <strong class="text-amber-600">🔗 URL:</strong> Para compartir configuración
+        <strong class="text-orange-600">📝 Tabla:</strong> Formato rico con diseño
       </div>
     </div>
   </div>

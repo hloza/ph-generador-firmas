@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { signatureData, setImageData } from '$lib/stores/signature.js';
-  import { markStepAsCompleted } from '../../../lib/stores/navigation.js';
+  import { markStepAsCompleted } from '$lib/stores/navigation.js';
   import { onMount } from 'svelte';
 
   let fileInput: HTMLInputElement;

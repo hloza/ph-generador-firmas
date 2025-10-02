@@ -38,6 +38,13 @@ export const steps: Step[] = [
     completed: false
   },
   {
+    id: 'image',
+    title: 'Imagen de Perfil',
+    description: 'Sube tu foto profesional',
+    path: '/editor/image',
+    completed: false
+  },
+  {
     id: 'design',
     title: 'Personalización',
     description: 'Ajusta colores y estilos',

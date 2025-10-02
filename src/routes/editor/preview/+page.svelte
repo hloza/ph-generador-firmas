@@ -21,10 +21,6 @@
   <meta name="description" content="Revisa tu firma y descárgala en diferentes formatos" />
 </svelte:head>
 
-<div class="section-header">
-  <h2 class="text-2xl font-bold text-gray-900">✅ Revisar y Descargar Firma</h2>
-</div>
-
 <div class="section-content">
   <div class="max-w-4xl mx-auto">
     <!-- Panel de Exportación -->

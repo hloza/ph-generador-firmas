@@ -8,6 +8,12 @@ export interface SocialLink {
   enabled: boolean;
 }
 
+export interface ImageData {
+  url: string;
+  shape: 'circle' | 'square' | 'rounded';
+  size: 'small' | 'medium' | 'large';
+}
+
 export interface SignatureData {
   fullName: string;
   position: string;
@@ -29,6 +35,7 @@ export interface SignatureData {
   instagram?: string;
   accentColor?: string;
   fontFamily?: string;
+  image?: ImageData;
 }
 
 export interface Template {
@@ -237,4 +244,28 @@ export const signatureStore = {
   }
 };
 
-// Función de imagen eliminada
+// Función para establecer datos de imagen
+export function setImageData(imageData: ImageData) {
+  signatureData.update(data => {
+    const updatedData = {
+      ...data,
+      image: imageData
+    };
+    
+    if (browser) {
+      localStorage.setItem('signatureData', JSON.stringify(updatedData));
+    }
+    
+    return updatedData;
+  });
+  
+  showToast('success', '✅ Imagen actualizada correctamente');
+}
+
+// Función para resetear completamente los datos
+export function resetSignatureData() {
+  if (browser) {
+    localStorage.removeItem('signatureData');
+  }
+  signatureData.set(initialSignatureData);
+}

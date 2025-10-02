@@ -1,6 +1,8 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Paleta de colores para modo claro */
+/* Paleta de colores */
 :root {
   --color-background: #ffffff;
   --color-foreground: #0f172a;
@@ -15,25 +17,9 @@
   --color-card-foreground: #0f172a;
 }
 
-/* Paleta de colores para modo oscuro */
-:root.dark {
-  --color-background: #0f172a;
-  --color-foreground: #f8fafc;
-  --color-primary: #3b82f6;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #a855f7;
-  --color-accent: #f59e0b;
-  --color-muted: #1e293b;
-  --color-muted-foreground: #94a3b8;
-  --color-border: #334155;
-  --color-card: #1e293b;
-  --color-card-foreground: #f8fafc;
-}
-
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Clases de utilidad básicas */
@@ -287,31 +273,46 @@ body {
 /* Estilos para vista previa responsiva */
 .signature-preview-container {
   transition: all 0.3s ease;
-  overflow: hidden;
+  overflow: visible !important;
   border-radius: 16px;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  padding: 20px;
+  padding: 50px 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.signature-preview-content {
+  overflow: visible !important;
+  width: auto;
+  max-width: none !important;
 }
 
 .desktop-view {
-  max-width: 100%;
-  min-height: 300px;
+  width: 100%;
+  min-height: 350px;
+  overflow: visible !important;
 }
 
 .desktop-view .signature-content {
   transform: scale(1);
   transform-origin: center;
+  overflow: visible !important;
 }
 
 .mobile-view {
   max-width: 375px;
-  min-height: 400px;
+  min-height: 450px;
   margin: 0 auto;
   background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   border: 2px solid #475569;
   border-radius: 20px;
-  padding: 24px 16px;
+  padding: 30px 20px;
   position: relative;
+  overflow: visible !important;
 }
 
 .mobile-view::before {
@@ -327,9 +328,10 @@ body {
 }
 
 .mobile-view .signature-content {
-  transform: scale(0.85);
+  transform: scale(0.9);
   transform-origin: top center;
   background: #ffffff;
+  overflow: visible !important;
 }
 
 /* Clases personalizadas específicas del proyecto */

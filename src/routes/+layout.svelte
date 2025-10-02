@@ -2,21 +2,33 @@
   import '../app.css';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
   import { currentStep, stepsStore, setCurrentStep, canNavigateToStep } from '$lib/stores/navigation';
-  import { themeStore } from '$lib/stores/theme';
   import SignaturePreview from '$lib/components/SignaturePreview.svelte';
   import Toast from '$lib/components/Toast.svelte';
-  import { showToast } from '$lib/stores/signature.js';
+  import { showToast, signatureData, resetSignatureData } from '$lib/stores/signature.js';
+  import { generateSignatureHTML } from '$lib/utils/signature.js';
 
-  // Inicializar tema al montar el componente
-  onMount(() => {
-    themeStore.init();
-  });
+  // Estado para el modal de email
+  let showEmailModal = false;
 
-  // Función para alternar tema
-  function toggleTheme() {
-    themeStore.toggle();
+  // Función para limpiar todos los datos
+  function clearAllData() {
+    if (confirm('¿Estás seguro de que quieres limpiar todos los datos? Esta acción no se puede deshacer.')) {
+      resetSignatureData();
+      showToast('success', '✅ Todos los datos han sido limpiados');
+      goto('/');
+    }
+  }
+
+  // Funciones para el simulador de email
+  function showEmailSimulator() {
+    showEmailModal = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEmailSimulator() {
+    showEmailModal = false;
+    document.body.style.overflow = 'auto';
   }
 
   // Reactive statement para obtener la ruta actual
@@ -32,7 +44,8 @@
       setCurrentStep('contact');
     } else if (currentRoute?.includes('/editor/social')) {
       setCurrentStep('social');
-    // Paso de imagen eliminado
+    } else if (currentRoute?.includes('/editor/image')) {
+      setCurrentStep('image');
     } else if (currentRoute?.includes('/editor/design')) {
       setCurrentStep('design');
     } else if (currentRoute?.includes('/editor/preview')) {
@@ -72,27 +85,14 @@
 				</div>
 				<div class="flex items-center space-x-4">
 					<button 
-						class="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted" 
-						aria-label="Cambiar tema"
-						on:click={toggleTheme}
+						class="flex items-center space-x-2 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium" 
+						aria-label="Limpiar todos los datos"
+						on:click={clearAllData}
 					>
-						{#if $themeStore === 'dark'}
-							<!-- Icono de sol para modo claro -->
-							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-							</svg>
-						{:else}
-							<!-- Icono de luna para modo oscuro -->
-							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-							</svg>
-						{/if}
-					</button>
-					<button class="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors">
 						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
 						</svg>
-						<span class="text-sm">Ayuda</span>
+						<span>Limpiar Todo</span>
 					</button>
 				</div>
 			</div>
@@ -187,14 +187,14 @@
 				<div class="flex items-center justify-between mb-3">
 					<h3 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">Vista Previa</h3>
 					<div class="flex items-center space-x-2">
-						<button class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="Actualizar" aria-label="Actualizar vista previa">
-							<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-							</svg>
-						</button>
-						<button class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="Pantalla completa" aria-label="Ver en pantalla completa">
-							<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+						<button 
+							class="p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors" 
+							title="Ver en correo electrónico" 
+							aria-label="Ver firma en simulador de correo electrónico"
+							on:click={showEmailSimulator}
+						>
+							<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+								<path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
 							</svg>
 						</button>
 					</div>
@@ -229,6 +229,106 @@
 		</div>
 	</div>
 </div>
+
+<!-- Modal de Simulador de Email -->
+{#if showEmailModal}
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" on:click={closeEmailSimulator}>
+    <div class="bg-white w-full h-full max-w-7xl max-h-screen mx-4 my-4 rounded-lg shadow-2xl overflow-hidden" on:click|stopPropagation>
+      
+      <!-- Header del Cliente de Correo -->
+      <div class="bg-gray-100 border-b border-gray-300 p-4 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          <h2 class="text-lg font-semibold text-gray-800">Cliente de Correo - Vista Previa</h2>
+        </div>
+        <button 
+          class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-200"
+          on:click={closeEmailSimulator}
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Contenido del Email -->
+      <div class="bg-white h-full overflow-auto p-8">
+        <div class="max-w-4xl mx-auto">
+          
+          <!-- Header del Email -->
+          <div class="bg-gray-50 border border-gray-200 rounded-t-lg p-4 mb-0">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span class="text-white font-semibold text-sm">
+                    {($signatureData.name || $signatureData.fullName || 'Usuario').charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div>
+                  <div class="font-semibold text-gray-900">
+                    {$signatureData.name || $signatureData.fullName || 'Nombre Usuario'}
+                  </div>
+                  <div class="text-sm text-gray-600">
+                    {$signatureData.email || 'usuario@empresa.com'}
+                  </div>
+                </div>
+              </div>
+              <div class="text-sm text-gray-500">
+                Hace 2 minutos
+              </div>
+            </div>
+            
+            <div class="text-sm text-gray-600 mb-2">
+              <strong>Para:</strong> cliente@empresa.com
+            </div>
+            <div class="text-sm text-gray-600 mb-2">
+              <strong>Asunto:</strong> Información importante sobre nuestros servicios
+            </div>
+          </div>
+
+          <!-- Cuerpo del Email -->
+          <div class="bg-white border-l border-r border-gray-200 p-6">
+            <div class="prose max-w-none">
+              <p class="text-gray-800 leading-relaxed mb-4">
+                Estimado cliente,
+              </p>
+              <p class="text-gray-800 leading-relaxed mb-4">
+                Espero que este mensaje le encuentre bien. Le escribo para informarle sobre las últimas novedades de nuestros servicios y cómo podemos ayudarle a alcanzar sus objetivos empresariales.
+              </p>
+              <p class="text-gray-800 leading-relaxed mb-4">
+                Quedamos a su disposición para cualquier consulta que pueda tener.
+              </p>
+              <p class="text-gray-800 leading-relaxed mb-6">
+                Saludos cordiales,
+              </p>
+            </div>
+
+            <!-- Aquí se renderiza la firma -->
+            <div class="border-t border-gray-200 pt-4">
+              {@html generateSignatureHTML($signatureData)}
+            </div>
+          </div>
+
+          <!-- Footer del Email -->
+          <div class="bg-gray-50 border border-gray-200 rounded-b-lg p-4">
+            <div class="flex items-center justify-between text-xs text-gray-500">
+              <div class="flex items-center space-x-4">
+                <button class="hover:text-gray-700">Responder</button>
+                <button class="hover:text-gray-700">Reenviar</button>
+                <button class="hover:text-gray-700">Archivar</button>
+              </div>
+              <div>
+                Gmail
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{/if}
 
 <!-- Componente de Toast -->
 <Toast />
