@@ -1,4 +1,4 @@
-# 📧 Generador de Firmas de Correo Electrónico
+# Generador de Firmas de Correo Electrónico
 
 > Aplicación web profesional para crear firmas de correo personalizadas con **SvelteKit 5** y **TailwindCSS**.
 
@@ -6,15 +6,15 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
 ![SvelteKit](https://img.shields.io/badge/SvelteKit-5.0-orange.svg)
 
-## ✨ Características
+## Características
 
-- 🎨 **6 plantillas profesionales** con vista previa en tiempo real
-- 🖼️ **Editor de imágenes** con recorte y múltiples formas
-- 🎯 **Personalización completa** de colores, textos y redes sociales
-- 📱 **Diseño responsivo** para desktop y móvil
-- 📤 **Exportación HTML/PNG** compatible con Gmail, Outlook, Apple Mail
+- **6 plantillas profesionales** con vista previa en tiempo real
+- **Editor de imágenes** con recorte y múltiples formas
+- **Personalización completa** de colores, textos y redes sociales
+- **Diseño responsivo** para desktop y móvil
+- **Exportación HTML/PNG** compatible con Gmail, Outlook, Apple Mail
 
-## 🚀 Inicio Rápido
+## Inicio Rápido
 
 ### Instalación
 
@@ -40,7 +40,7 @@ npm run build     # Build para producción
 npm run preview   # Preview del build
 ```
 
-## 🛠️ Stack Tecnológico
+## Stack Tecnológico
 
 - **SvelteKit 5** - Framework con SSR
 - **TypeScript** - Tipado estático
@@ -49,7 +49,7 @@ npm run preview   # Preview del build
 - **CropperJS** - Editor de imágenes
 - **html-to-image** - Exportación PNG
 
-## 📁 Estructura
+## Estructura
 
 ```
 src/
@@ -63,7 +63,7 @@ src/
     └── export/          # Exportación
 ```
 
-## 📋 Uso
+## Uso
 
 1. **Selecciona plantilla** - Elige entre 6 diseños profesionales
 2. **Completa datos** - Nombre, cargo, contacto, redes sociales
@@ -71,7 +71,7 @@ src/
 4. **Personaliza** - Ajusta colores y diseño
 5. **Exporta** - Copia HTML o descarga PNG
 
-## 🤝 Contribuir
+## Contribuir
 
 ```bash
 # Fork del repositorio
@@ -81,7 +81,7 @@ git push origin feature/nueva-funcionalidad
 # Crear Pull Request
 ```
 
-## 📄 Licencia
+## Licencia
 
 MIT License - Ver [LICENSE](LICENSE)
 
