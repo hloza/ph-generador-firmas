@@ -9,8 +9,24 @@
   // Estado para vista responsiva
   let viewMode: 'desktop' | 'mobile' = 'desktop';
   
+  // Key reactivo para forzar actualización cuando cambian datos profundos
+  $: updateKey = JSON.stringify({
+    image: $signatureData.image,
+    name: $signatureData.name,
+    fullName: $signatureData.fullName,
+    title: $signatureData.title,
+    company: $signatureData.company,
+    email: $signatureData.email,
+    phone: $signatureData.phone,
+    primaryColor: $signatureData.primaryColor,
+    templateId: $signatureData.templateId
+  });
+  
   // Función reactiva que se recalcula cuando cambian los datos del store, el templateId o el viewMode
   $: templatePreviewHtml = (() => {
+    // Forzar dependencia en updateKey para recalcular cuando cambia cualquier dato
+    const _ = updateKey;
+    
     const templateId = selectedTemplateId;
     const isMobile = viewMode === 'mobile';
     const name = $signatureData.name || $signatureData.fullName || 'Tu nombre';
@@ -378,7 +394,9 @@
         <!-- Vista previa de la firma -->
         <div class="signature-preview-container {viewMode === 'mobile' ? 'mobile-view' : 'desktop-view'}">
           <div class="signature-content signature-preview-content">
-            {@html templatePreviewHtml}
+            {#key updateKey}
+              {@html templatePreviewHtml}
+            {/key}
           </div>
         </div>
       </div>

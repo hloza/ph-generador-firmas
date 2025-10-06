@@ -4,19 +4,25 @@
   import { markStepAsCompleted } from '$lib/stores/navigation.js';
   import { onMount } from 'svelte';
 
-  let fileInput: HTMLInputElement;
-  let dragActive = false;
   let imagePreview = '';
   let imageShape: 'circle' | 'square' | 'rounded' = 'circle';
   let imageSize: 'small' | 'medium' | 'large' = 'medium';
   let imageUrl = '';
   let urlError = '';
-  let showUrlInput = false;
 
-  // Inicializar con datos existentes
+  // Sincronizar con los datos del store cuando cambian
+  $: if ($signatureData.image?.url && !imagePreview) {
+    imagePreview = $signatureData.image.url;
+    imageUrl = $signatureData.image.url;
+    imageShape = $signatureData.image.shape || 'circle';
+    imageSize = $signatureData.image.size || 'medium';
+  }
+
+  // Inicializar con datos existentes del store
   onMount(() => {
     if ($signatureData.image?.url) {
       imagePreview = $signatureData.image.url;
+      imageUrl = $signatureData.image.url; // También actualizar el campo de URL
       imageShape = $signatureData.image.shape || 'circle';
       imageSize = $signatureData.image.size || 'medium';
     }
@@ -27,37 +33,7 @@
     updateImageData();
   }
 
-  function handleFileSelect(event: Event) {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-    if (file) {
-      processFile(file);
-    }
-  }
 
-  function handleDrop(event: DragEvent) {
-    event.preventDefault();
-    dragActive = false;
-    
-    const file = event.dataTransfer?.files[0];
-    if (file && file.type.startsWith('image/')) {
-      processFile(file);
-    }
-  }
-
-  function processFile(file: File) {
-    if (file.size > 2 * 1024 * 1024) { // 2MB
-      alert('La imagen debe ser menor a 2MB');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      imagePreview = e.target?.result as string;
-      updateImageData();
-    };
-    reader.readAsDataURL(file);
-  }
 
   function updateImageData() {
     setImageData({
@@ -76,11 +52,10 @@
     imagePreview = '';
     imageUrl = '';
     urlError = '';
-    showUrlInput = false;
-    setImageData(null);
-    if (fileInput) {
-      fileInput.value = '';
-    }
+    signatureData.update(data => ({
+      ...data,
+      image: undefined
+    }));
   }
 
   function handleContinue() {
@@ -89,15 +64,6 @@
       markStepAsCompleted('image');
     }
     goto('/editor/design');
-  }
-
-  function handleDragOver(event: DragEvent) {
-    event.preventDefault();
-    dragActive = true;
-  }
-
-  function handleDragLeave() {
-    dragActive = false;
   }
 
   function handleUrlSubmit() {
@@ -126,16 +92,7 @@
 
     urlError = '';
     imagePreview = imageUrl;
-    showUrlInput = false;
     updateImageData();
-  }
-
-  function toggleUrlInput() {
-    showUrlInput = !showUrlInput;
-    if (showUrlInput) {
-      imageUrl = '';
-      urlError = '';
-    }
   }
 
   function clearUrlError() {
@@ -150,114 +107,61 @@
 
 <div class="space-y-6">
   <div class="text-center mb-8">
-    <h2 class="text-2xl font-bold text-slate-100 mb-2">Agrega tu imagen o logo</h2>
-    <p class="text-slate-400">Sube una foto personal o logo de tu empresa para personalizar tu firma</p>
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">Agrega tu imagen o logo</h2>
+    <p class="text-gray-600">Ingresa la URL de tu foto o logo para personalizar tu firma</p>
   </div>
 
-  <!-- Área de subida de archivos -->
+  <!-- Formulario de URL -->
   <div class="space-y-4">
     {#if !imagePreview}
-      <div 
-        class="border-2 border-dashed border-slate-600 rounded-lg p-8 text-center transition-colors duration-300"
-        class:border-blue-400={dragActive}
-        class:bg-slate-800={dragActive}
-        on:drop={handleDrop}
-        on:dragover={handleDragOver}
-        on:dragleave={handleDragLeave}
-        role="button"
-        tabindex="0"
-      >
-        <div class="space-y-4">
-          <div class="w-16 h-16 mx-auto bg-slate-700 rounded-full flex items-center justify-center">
-            <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+      <div class="bg-white rounded-lg p-6 border border-gray-300 shadow-sm">
+        <div class="flex items-center justify-center mb-6">
+          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>
           </div>
-          
+        </div>
+        
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 text-center">URL de la imagen</h3>
+        <div class="space-y-4">
           <div>
-            <p class="text-slate-300 mb-4">Arrastra tu imagen aquí o</p>
-            <div class="flex flex-col gap-3">
-              <button 
-                type="button"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                on:click={() => fileInput.click()}
-              >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                Seleccionar archivo
-              </button>
-              
-              <div class="text-slate-400 text-sm">o</div>
-              
-              <button 
-                type="button"
-                class="inline-flex items-center px-4 py-2 border border-slate-600 text-sm font-medium rounded-md text-slate-300 bg-transparent hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                on:click={toggleUrlInput}
-              >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>
-                {showUrlInput ? 'Cancelar URL' : 'Usar URL de imagen'}
-              </button>
-            </div>
+            <label for="imageUrl" class="block text-sm font-medium text-gray-700 mb-2">
+              Ingresa la URL de tu imagen
+            </label>
+            <input
+              type="url"
+              id="imageUrl"
+              bind:value={imageUrl}
+              on:input={clearUrlError}
+              class="w-full px-4 py-3 bg-white border border-gray-300 rounded-md text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="https://ejemplo.com/imagen.jpg"
+            />
+            {#if urlError}
+              <p class="mt-2 text-sm text-red-600">{urlError}</p>
+            {/if}
+            <p class="mt-2 text-xs text-gray-500">
+              Formatos: JPG, PNG, GIF, WebP
+            </p>
           </div>
           
-          <p class="text-xs text-slate-500">
-            PNG, JPG, GIF hasta 2MB
-          </p>
+          <button
+            type="button"
+            class="w-full px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors font-medium"
+            on:click={handleUrlSubmit}
+          >
+            Cargar imagen
+          </button>
         </div>
       </div>
-
-      <!-- Formulario de URL -->
-      {#if showUrlInput}
-        <div class="bg-slate-800 rounded-lg p-6 border border-slate-600">
-          <h3 class="text-lg font-semibold text-slate-200 mb-4">Ingresar URL de imagen</h3>
-          <div class="space-y-4">
-            <div>
-              <label for="imageUrl" class="block text-sm font-medium text-slate-300 mb-2">
-                URL de la imagen
-              </label>
-              <input
-                type="url"
-                id="imageUrl"
-                bind:value={imageUrl}
-                on:input={clearUrlError}
-                class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="https://ejemplo.com/imagen.jpg"
-              />
-              {#if urlError}
-                <p class="mt-2 text-sm text-red-400">{urlError}</p>
-              {/if}
-            </div>
-            
-            <div class="flex gap-3">
-              <button
-                type="button"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                on:click={handleUrlSubmit}
-              >
-                Cargar imagen
-              </button>
-              <button
-                type="button"
-                class="px-4 py-2 bg-slate-600 text-slate-200 rounded-md hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500 transition-colors"
-                on:click={toggleUrlInput}
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      {/if}
     {:else}
       <!-- Preview de la imagen -->
-      <div class="bg-slate-800 rounded-lg p-6">
+      <div class="bg-white rounded-lg p-6 border border-gray-300 shadow-sm">
         <div class="flex items-start justify-between mb-4">
-          <h3 class="text-lg font-semibold text-slate-200">Vista previa</h3>
+          <h3 class="text-lg font-semibold text-gray-800">Vista previa</h3>
           <button 
             type="button"
-            class="text-red-400 hover:text-red-300 transition-colors"
+            class="text-red-600 hover:text-red-700 transition-colors"
             on:click={removeImage}
             aria-label="Eliminar imagen"
           >
@@ -271,7 +175,7 @@
           <img 
             src={imagePreview} 
             alt="Preview" 
-            class="max-w-32 max-h-32 object-cover border-2 border-slate-600"
+            class="max-w-32 max-h-32 object-cover border-2 border-gray-300"
             class:rounded-full={imageShape === 'circle'}
             class:rounded-lg={imageShape === 'rounded'}
             class:rounded-none={imageShape === 'square'}
@@ -282,87 +186,90 @@
 
     <!-- Opciones de personalización -->
     {#if imagePreview}
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="space-y-4">
         <!-- Forma -->
-        <div class="bg-slate-800 rounded-lg p-4">
+        <div class="bg-white rounded-lg p-4 border border-gray-200">
           <fieldset>
-            <legend class="block text-sm font-medium text-slate-200 mb-3">Forma</legend>
-          <div class="grid grid-cols-3 gap-2">
+            <legend class="block text-sm font-medium text-gray-800 mb-3">Forma</legend>
+          <div class="space-y-2">
             <button
               type="button"
-              class="p-3 rounded-lg border transition-colors"
+              class="w-full p-3 rounded-lg border-2 transition-colors flex items-center gap-3 hover:shadow-sm"
               class:border-blue-500={imageShape === 'circle'}
-              class:bg-blue-900={imageShape === 'circle'}
-              class:border-slate-600={imageShape !== 'circle'}
-              class:bg-slate-700={imageShape !== 'circle'}
+              class:bg-blue-50={imageShape === 'circle'}
+              class:border-gray-300={imageShape !== 'circle'}
+              class:bg-white={imageShape !== 'circle'}
+              class:hover:bg-gray-50={imageShape !== 'circle'}
               on:click={() => imageShape = 'circle'}
             >
-              <div class="w-8 h-8 bg-slate-400 rounded-full mx-auto"></div>
-              <p class="text-xs text-slate-300 mt-1">Circular</p>
+              <div class="w-8 h-8 bg-gray-400 rounded-full flex-shrink-0"></div>
+              <span class="text-sm text-gray-700 font-medium">Circular</span>
             </button>
             
             <button
               type="button"
-              class="p-3 rounded-lg border transition-colors"
+              class="w-full p-3 rounded-lg border-2 transition-colors flex items-center gap-3 hover:shadow-sm"
               class:border-blue-500={imageShape === 'rounded'}
-              class:bg-blue-900={imageShape === 'rounded'}
-              class:border-slate-600={imageShape !== 'rounded'}
-              class:bg-slate-700={imageShape !== 'rounded'}
+              class:bg-blue-50={imageShape === 'rounded'}
+              class:border-gray-300={imageShape !== 'rounded'}
+              class:bg-white={imageShape !== 'rounded'}
+              class:hover:bg-gray-50={imageShape !== 'rounded'}
               on:click={() => imageShape = 'rounded'}
             >
-              <div class="w-8 h-8 bg-slate-400 rounded-lg mx-auto"></div>
-              <p class="text-xs text-slate-300 mt-1">Redondeada</p>
+              <div class="w-8 h-8 bg-gray-400 rounded-lg flex-shrink-0"></div>
+              <span class="text-sm text-gray-700 font-medium">Redondeada</span>
             </button>
             
             <button
               type="button"
-              class="p-3 rounded-lg border transition-colors"
+              class="w-full p-3 rounded-lg border-2 transition-colors flex items-center gap-3 hover:shadow-sm"
               class:border-blue-500={imageShape === 'square'}
-              class:bg-blue-900={imageShape === 'square'}
-              class:border-slate-600={imageShape !== 'square'}
-              class:bg-slate-700={imageShape !== 'square'}
+              class:bg-blue-50={imageShape === 'square'}
+              class:border-gray-300={imageShape !== 'square'}
+              class:bg-white={imageShape !== 'square'}
+              class:hover:bg-gray-50={imageShape !== 'square'}
               on:click={() => imageShape = 'square'}
             >
-              <div class="w-8 h-8 bg-slate-400 mx-auto"></div>
-              <p class="text-xs text-slate-300 mt-1">Cuadrada</p>
+              <div class="w-8 h-8 bg-gray-400 flex-shrink-0"></div>
+              <span class="text-sm text-gray-700 font-medium">Cuadrada</span>
             </button>
           </div>
           </fieldset>
         </div>
 
         <!-- Tamaño -->
-        <div class="bg-slate-800 rounded-lg p-4">
+        <div class="bg-white rounded-lg p-4 border border-gray-200">
           <fieldset>
-            <legend class="block text-sm font-medium text-slate-200 mb-3">Tamaño</legend>
+            <legend class="block text-sm font-medium text-gray-800 mb-3">Tamaño</legend>
           <div class="space-y-2">
-            <label class="flex items-center space-x-3">
+            <label class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
               <input 
                 type="radio" 
                 bind:group={imageSize} 
                 value="small"
-                class="w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 focus:ring-blue-500"
+                class="w-4 h-4 text-blue-600 bg-white border-gray-300 focus:ring-blue-500"
               />
-              <span class="text-slate-300">Pequeño (60px)</span>
+              <span class="text-gray-700">Pequeño (60px)</span>
             </label>
             
-            <label class="flex items-center space-x-3">
+            <label class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
               <input 
                 type="radio" 
                 bind:group={imageSize} 
                 value="medium"
-                class="w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 focus:ring-blue-500"
+                class="w-4 h-4 text-blue-600 bg-white border-gray-300 focus:ring-blue-500"
               />
-              <span class="text-slate-300">Mediano (80px)</span>
+              <span class="text-gray-700">Mediano (80px)</span>
             </label>
             
-            <label class="flex items-center space-x-3">
+            <label class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
               <input 
                 type="radio" 
                 bind:group={imageSize} 
                 value="large"
-                class="w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 focus:ring-blue-500"
+                class="w-4 h-4 text-blue-600 bg-white border-gray-300 focus:ring-blue-500"
               />
-              <span class="text-slate-300">Grande (100px)</span>
+              <span class="text-gray-700">Grande (100px)</span>
             </label>
           </div>
           </fieldset>
@@ -375,7 +282,7 @@
   <div class="flex justify-between pt-6">
     <button 
       type="button"
-      class="px-6 py-2 text-slate-400 hover:text-slate-200 transition-colors"
+      class="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
       on:click={() => goto('/editor/social')}
     >
       ← Anterior
@@ -390,11 +297,3 @@
     </button>
   </div>
 </div>
-
-<input 
-  type="file" 
-  accept="image/*" 
-  class="hidden" 
-  bind:this={fileInput}
-  on:change={handleFileSelect}
-/>

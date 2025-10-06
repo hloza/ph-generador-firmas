@@ -104,7 +104,19 @@ function loadFromStorage(): SignatureData {
       if (urlParams.get('instagram')) urlData.instagram = urlParams.get('instagram')!;
       if (urlParams.get('templateId')) urlData.templateId = urlParams.get('templateId')!;
       
-      // Lógica de imagen eliminada
+      // Cargar parámetros de imagen desde URL
+      if (urlParams.get('imageUrl')) {
+        urlData.image = {
+          url: urlParams.get('imageUrl')!,
+          shape: (urlParams.get('imageShape') as 'circle' | 'square' | 'rounded') || 'circle',
+          size: (urlParams.get('imageSize') as 'small' | 'medium' | 'large') || 'medium'
+        };
+      }
+      
+      // Cargar colores y fuente desde URL
+      if (urlParams.get('primaryColor')) urlData.primaryColor = urlParams.get('primaryColor')!;
+      if (urlParams.get('accentColor')) urlData.accentColor = urlParams.get('accentColor')!;
+      if (urlParams.get('fontFamily')) urlData.fontFamily = urlParams.get('fontFamily')!;
       
       return { ...initialSignatureData, ...urlData };
     }
@@ -131,16 +143,22 @@ function initializeData(): SignatureData {
   if (!browser) return initialSignatureData;
   
   const urlParams = new URLSearchParams(window.location.search);
-  const hasUrlParams = urlParams.has('name') || urlParams.has('email') || urlParams.has('company');
+  const hasUrlParams = urlParams.has('name') || urlParams.has('email') || urlParams.has('company') || urlParams.has('imageUrl');
   const isHomePage = window.location.pathname === '/';
   
-  // Si es la página principal y no hay parámetros URL, limpiar localStorage y usar datos vacíos
-  if (isHomePage && !hasUrlParams) {
+  // Verificar si hay datos en localStorage antes de limpiar
+  const hasStoredData = localStorage.getItem('signatureData') !== null;
+  
+  // Solo limpiar si:
+  // 1. Estamos en la página principal (/)
+  // 2. NO hay parámetros URL
+  // 3. NO hay datos guardados en localStorage (o son datos vacíos)
+  if (isHomePage && !hasUrlParams && !hasStoredData) {
     localStorage.removeItem('signatureData');
     return initialSignatureData;
   }
   
-  // Si hay parámetros URL o no es la página principal, cargar normalmente
+  // Si hay datos guardados o parámetros URL, cargar normalmente
   return loadFromStorage();
 }
 

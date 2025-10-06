@@ -16,7 +16,14 @@
     if (confirm('¿Estás seguro de que quieres limpiar todos los datos? Esta acción no se puede deshacer.')) {
       resetSignatureData();
       showToast('success', '✅ Todos los datos han sido limpiados');
-      goto('/');
+      
+      // Navegar a la raíz y recargar la página
+      goto('/').then(() => {
+        // Esperar un momento para que la navegación se complete
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
+      });
     }
   }
 
@@ -67,9 +74,9 @@
   }
 </script>
 
-<div class="bg-background text-foreground flex flex-col">
+<div class="bg-gray-50 text-foreground flex flex-col">
 	<!-- Header mejorado -->
-	<header class="glass-effect border-b border-gray-300 flex-shrink-0">
+	<header class="glass-effect border-b border-gray-300 flex-shrink-0 bg-white">
 		<div class="max-w-full mx-auto px-4 py-2">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-4">
@@ -102,22 +109,22 @@
 	<div class="flex flex-1 max-w-full mx-auto p-3 gap-4 w-full">
 		<!-- Sidebar expandido con contenido integrado - Columna izquierda -->
 		<div style="width: 380px; flex-shrink: 0; height: calc(100vh - 80px); overflow-y: auto;">
-			<div class="bg-card text-card-foreground p-4 rounded-lg border border-border shadow-lg">
+			<div class="bg-white text-gray-800 p-4 rounded-lg border border-gray-200 shadow-lg">
 				<div class="flex items-center justify-between mb-4">
-					<h2 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Progreso</h2>
-					<div class="flex items-center space-x-1 text-xs text-slate-400">
-						<span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+					<h2 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Progreso</h2>
+					<div class="flex items-center space-x-1 text-xs text-gray-600">
+						<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
 						<span>En línea</span>
 					</div>
 				</div>
 				
 				<!-- Barra de progreso general -->
 				<div class="mb-4">
-					<div class="flex justify-between text-sm text-slate-400 mb-2">
+					<div class="flex justify-between text-sm text-gray-600 mb-2">
 						<span>Completado</span>
 						<span>{Math.round(($stepsStore.filter(s => s.completed).length / $stepsStore.length) * 100)}%</span>
 					</div>
-					<div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+					<div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
 						<div 
 							class="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-500 ease-out"
 							style="width: {($stepsStore.filter(s => s.completed).length / $stepsStore.length) * 100}%"
@@ -134,7 +141,7 @@
 							>
 								<!-- Indicador de conexión vertical -->
 								{#if index < $stepsStore.length - 1}
-									<div class="absolute left-6 top-14 w-0.5 h-6 {step.completed ? 'bg-green-400' : 'bg-slate-700'} transition-colors duration-300"></div>
+									<div class="absolute left-6 top-14 w-0.5 h-6 {step.completed ? 'bg-green-400' : 'bg-gray-300'} transition-colors duration-300"></div>
 								{/if}
 								
 								<div class="step-icon">
@@ -145,11 +152,11 @@
 											</svg>
 										</div>
 									{:else if $currentStep === step.id}
-										<div class="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold animate-pulse">
+										<div class="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
 											{index + 1}
 										</div>
 									{:else}
-										<div class="w-5 h-5 bg-slate-700 border-2 border-slate-600 rounded-full flex items-center justify-center text-slate-400 text-sm group-hover:border-blue-400 group-hover:text-blue-400 transition-all duration-200">
+										<div class="w-5 h-5 bg-gray-200 border-2 border-gray-300 rounded-full flex items-center justify-center text-gray-600 text-sm group-hover:border-blue-400 group-hover:text-blue-600 transition-all duration-200">
 											{index + 1}
 										</div>
 									{/if}
@@ -162,7 +169,7 @@
 								<!-- Indicador de expansión -->
 								{#if $currentStep === step.id}
 									<div class="step-expand-icon">
-										<svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
 										</svg>
 									</div>
@@ -201,27 +208,27 @@
 				</div>
 				
 				<div class="relative">
-					<div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-2xl"></div>
-					<div class="relative bg-gradient-to-br from-slate-700/50 to-slate-800/50 backdrop-blur-sm rounded-2xl p-4 min-h-[200px] flex items-start justify-center border border-slate-600/30">
+					<div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl"></div>
+					<div class="relative bg-white backdrop-blur-sm rounded-2xl p-6 min-h-[200px] flex items-start justify-center border border-gray-200 shadow-sm">
 						<SignaturePreview />
 					</div>
 					
 					<!-- Indicadores de estado -->
 					<div class="absolute top-3 right-3 flex space-x-2">
-						<div class="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Vista previa activa"></div>
-						<div class="w-2 h-2 bg-blue-400 rounded-full" title="Sincronizado"></div>
+						<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" title="Vista previa activa"></div>
+						<div class="w-2 h-2 bg-blue-500 rounded-full" title="Sincronizado"></div>
 					</div>
 				</div>
 				
 				<!-- Consejos rápidos -->
-				<div class="mt-6 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl border border-blue-500/20">
+				<div class="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
 					<div class="flex items-start space-x-3">
-						<svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 						</svg>
 						<div>
-							<p class="text-sm font-medium text-blue-300">Consejo</p>
-							<p class="text-xs text-slate-400 mt-1">Los cambios se reflejan automáticamente en la vista previa</p>
+							<p class="text-sm font-medium text-blue-700">Consejo</p>
+							<p class="text-xs text-gray-600 mt-1">Los cambios se reflejan automáticamente en la vista previa</p>
 						</div>
 					</div>
 				</div>
@@ -347,20 +354,38 @@
   .step-item {
     @apply flex items-center p-4 rounded-xl text-left transition-all duration-300;
     gap: 1rem;
-    @apply bg-slate-800/30 hover:bg-slate-700/50 border border-slate-700/30;
-    @apply transform hover:translate-x-1 hover:shadow-lg hover:shadow-blue-500/10;
+    @apply bg-white border border-gray-200;
+    @apply transform hover:translate-x-1 hover:shadow-lg;
+    @apply hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-500 hover:border-blue-500;
     backdrop-filter: blur(10px);
   }
   
+  .step-item:hover .step-content h3 {
+    @apply text-white;
+  }
+  
+  .step-item:hover .step-content p {
+    @apply text-blue-50;
+  }
+  
   .step-item.active {
-    @apply bg-gradient-to-r from-blue-600/40 to-purple-600/40 border-blue-400/60;
-    @apply shadow-xl shadow-blue-500/25 transform translate-x-1;
-    @apply ring-1 ring-blue-400/30;
+    @apply bg-gradient-to-r from-blue-600 to-purple-600 border-blue-600;
+    @apply shadow-xl transform translate-x-1;
+    @apply ring-2 ring-blue-400;
   }
   
   .step-item.completed {
-    @apply bg-gradient-to-r from-green-600/25 to-emerald-600/25 border-green-400/50;
-    @apply shadow-lg shadow-green-500/15;
+    @apply bg-green-50 border-green-300;
+    @apply shadow-md;
+    @apply hover:bg-green-500 hover:border-green-600;
+  }
+  
+  .step-item.completed:hover .step-content h3 {
+    @apply text-white;
+  }
+  
+  .step-item.completed:hover .step-content p {
+    @apply text-green-50;
   }
   
   .step-icon {
@@ -373,11 +398,27 @@
   }
   
   .step-content h3 {
-    @apply font-semibold text-slate-200 text-base mb-1 truncate;
+    @apply font-semibold text-gray-800 text-base mb-1 truncate;
   }
   
   .step-content p {
-    @apply text-sm text-slate-400 leading-relaxed;
+    @apply text-sm text-gray-600 leading-relaxed;
+  }
+  
+  .step-item.active .step-content h3 {
+    @apply text-white font-bold;
+  }
+  
+  .step-item.active .step-content p {
+    @apply text-blue-50;
+  }
+  
+  .step-item.completed .step-content h3 {
+    @apply text-green-900 font-semibold;
+  }
+  
+  .step-item.completed .step-content p {
+    @apply text-green-800;
   }
 
   /* Contenedor del paso con contenido expandible */
@@ -398,9 +439,9 @@
   .step-expanded-content {
     margin-top: 0.5rem;
     padding: 0.75rem;
-    background-color: rgba(30, 41, 59, 0.2);
+    background-color: #f8fafc;
     border-radius: 0.75rem;
-    border: 1px solid rgba(71, 85, 105, 0.3);
+    border: 1px solid #cbd5e1;
     backdrop-filter: blur(4px);
     max-height: 400px;
     overflow-y: auto;
@@ -444,17 +485,18 @@
 
   /* Mejores scrollbars */
   :global(::-webkit-scrollbar) {
-    width: 6px;
+    width: 8px;
+    height: 8px;
   }
 
   :global(::-webkit-scrollbar-track) {
-    background: rgb(30 41 59 / 0.5);
-    border-radius: 3px;
+    background: #f1f5f9;
+    border-radius: 4px;
   }
 
   :global(::-webkit-scrollbar-thumb) {
     background: linear-gradient(to bottom, rgb(59 130 246), rgb(147 51 234));
-    border-radius: 3px;
+    border-radius: 4px;
   }
 
   :global(::-webkit-scrollbar-thumb:hover) {

@@ -58,6 +58,26 @@
     }
   }
 
+  // Función auxiliar para aplicar estilos inline y evitar problemas de CORS
+  async function prepareElementForImage(element: HTMLElement): Promise<HTMLElement> {
+    // Crear un clon del elemento
+    const clone = element.cloneNode(true) as HTMLElement;
+    
+    // Aplicar font-family inline a todos los elementos de texto
+    const textElements = clone.querySelectorAll('*');
+    textElements.forEach((el: any) => {
+      const computedStyle = window.getComputedStyle(el);
+      const fontFamily = computedStyle.fontFamily;
+      
+      // Solo aplicar si el elemento tiene texto
+      if (el.textContent && el.textContent.trim()) {
+        el.style.fontFamily = fontFamily || 'Arial, sans-serif';
+      }
+    });
+    
+    return clone;
+  }
+
   // 2. Generar y descargar imagen de la firma
   async function generateImage() {
     if (!htmlToImage) {
@@ -94,14 +114,25 @@
         backgroundColor: 'white',
         pixelRatio: 2,
         style: {
-          padding: '20px',
+          padding: '40px',
           margin: '0',
         },
-        skipFonts: false,
+        skipFonts: true, // Evitar errores de CORS con Google Fonts
+        cacheBust: true, // Evitar problemas de caché
         useCORS: true,
         allowTaint: true,
-        fetchRequestInit: {
-          mode: 'cors'
+        width: (previewElement as HTMLElement).scrollWidth + 80,
+        height: (previewElement as HTMLElement).scrollHeight + 80,
+        filter: (node: HTMLElement) => {
+          // Filtrar elementos que puedan causar problemas
+          if (node.tagName === 'STYLE') {
+            const styleContent = node.textContent || '';
+            // Excluir estilos de Google Fonts que causan CORS
+            if (styleContent.includes('fonts.googleapis.com')) {
+              return false;
+            }
+          }
+          return true;
         }
       });
       
@@ -130,11 +161,8 @@
       
       const data = $signatureData;
       
-      // Importar la función generateSignatureHTML para mantener consistencia con la plantilla
-      const { generateSignatureHTML } = await import('$lib/utils/signature.js');
-      
-      // Generar HTML usando la misma función que las exportaciones (mantiene formato de plantilla)
-      const signatureHTML = generateSignatureHTML(data);
+      // Generar HTML optimizado para tabla de correo
+      const signatureHTML = generateEmailTableHTML(data);
       
       // Crear un contenedor temporal invisible para el contenido HTML
       const tempContainer = document.createElement('div');
@@ -177,7 +205,7 @@
             selection.removeAllRanges();
             
             if (success) {
-              showToast('success', '✨ Firma copiada con formato de plantilla');
+              showToast('success', '✨ Firma copiada con formato de tabla');
             } else {
               // Último fallback: copiar solo HTML como texto
               const fallbackSuccess = await copyToClipboard(signatureHTML);
@@ -199,6 +227,126 @@
     } finally {
       isProcessing = false;
     }
+  }
+
+  // Función para generar HTML optimizado en formato tabla para correos
+  function generateEmailTableHTML(data: any): string {
+    const name = data.name || data.fullName || 'Tu nombre';
+    const title = data.title || data.position || 'Tu título profesional';
+    const company = data.company || 'Tu empresa';
+    const department = data.department || '';
+    const email = data.email || '';
+    const phone = data.phone || '';
+    const website = data.website || '';
+    const address = data.address || '';
+    const primaryColor = data.primaryColor || '#3b82f6';
+    
+    // Generar imagen si existe
+    const imageHTML = data.image?.url ? `
+      <img src="${data.image.url}" 
+           alt="Foto de perfil" 
+           width="80" 
+           height="80" 
+           style="border-radius: ${data.image.shape === 'circle' ? '50%' : data.image.shape === 'rounded' ? '8px' : '0'}; 
+                  object-fit: cover; 
+                  border: 2px solid ${primaryColor}; 
+                  display: block;
+                  margin-bottom: 10px;" />
+    ` : '';
+    
+    // Generar iconos de redes sociales
+    const socialLinks = [];
+    if (data.linkedin) {
+      socialLinks.push(`<a href="https://linkedin.com/in/${data.linkedin}" style="margin-right: 8px;"><img src="https://cdn-icons-png.flaticon.com/32/174/174857.png" width="24" height="24" alt="LinkedIn" style="display: inline-block; vertical-align: middle;" /></a>`);
+    }
+    if (data.twitter) {
+      socialLinks.push(`<a href="https://twitter.com/${data.twitter}" style="margin-right: 8px;"><img src="https://cdn-icons-png.flaticon.com/32/733/733579.png" width="24" height="24" alt="Twitter" style="display: inline-block; vertical-align: middle;" /></a>`);
+    }
+    if (data.github) {
+      socialLinks.push(`<a href="https://github.com/${data.github}" style="margin-right: 8px;"><img src="https://cdn-icons-png.flaticon.com/32/733/733553.png" width="24" height="24" alt="GitHub" style="display: inline-block; vertical-align: middle;" /></a>`);
+    }
+    if (data.instagram) {
+      socialLinks.push(`<a href="https://instagram.com/${data.instagram}" style="margin-right: 8px;"><img src="https://cdn-icons-png.flaticon.com/32/174/174855.png" width="24" height="24" alt="Instagram" style="display: inline-block; vertical-align: middle;" /></a>`);
+    }
+    
+    const socialHTML = socialLinks.length > 0 ? `
+      <tr>
+        <td colspan="2" style="padding-top: 15px; padding-bottom: 5px; border-top: 2px solid ${primaryColor};">
+          ${socialLinks.join('')}
+        </td>
+      </tr>
+    ` : '';
+    
+    // Generar tabla HTML optimizada para correos
+    return `
+<table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; max-width: 600px;">
+  <tbody>
+    ${imageHTML ? `
+    <tr>
+      <td colspan="2" style="padding-bottom: 15px;">
+        ${imageHTML}
+      </td>
+    </tr>
+    ` : ''}
+    <tr>
+      <td colspan="2" style="padding-bottom: 5px;">
+        <strong style="font-size: 18px; color: ${primaryColor};">${name}</strong>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" style="padding-bottom: 3px;">
+        <span style="font-size: 15px; color: #555;">${title}</span>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" style="padding-bottom: 15px;">
+        <span style="font-size: 14px; color: #666;">${company}${department ? ` - ${department}` : ''}</span>
+      </td>
+    </tr>
+    ${email ? `
+    <tr>
+      <td style="padding: 3px 0; width: 30px; vertical-align: top;">
+        <img src="https://cdn-icons-png.flaticon.com/16/732/732200.png" width="16" height="16" alt="Email" style="display: block; margin-top: 2px;" />
+      </td>
+      <td style="padding: 3px 0;">
+        <a href="mailto:${email}" style="color: ${primaryColor}; text-decoration: none;">${email}</a>
+      </td>
+    </tr>
+    ` : ''}
+    ${phone ? `
+    <tr>
+      <td style="padding: 3px 0; width: 30px; vertical-align: top;">
+        <img src="https://cdn-icons-png.flaticon.com/16/724/724664.png" width="16" height="16" alt="Teléfono" style="display: block; margin-top: 2px;" />
+      </td>
+      <td style="padding: 3px 0;">
+        <a href="tel:${phone.replace(/\s/g, '')}" style="color: #333; text-decoration: none;">${phone}</a>
+      </td>
+    </tr>
+    ` : ''}
+    ${website ? `
+    <tr>
+      <td style="padding: 3px 0; width: 30px; vertical-align: top;">
+        <img src="https://cdn-icons-png.flaticon.com/16/1006/1006771.png" width="16" height="16" alt="Website" style="display: block; margin-top: 2px;" />
+      </td>
+      <td style="padding: 3px 0;">
+        <a href="${website.startsWith('http') ? website : 'https://' + website}" style="color: ${primaryColor}; text-decoration: none;">${website}</a>
+      </td>
+    </tr>
+    ` : ''}
+    ${address ? `
+    <tr>
+      <td style="padding: 3px 0; width: 30px; vertical-align: top;">
+        <img src="https://cdn-icons-png.flaticon.com/16/684/684908.png" width="16" height="16" alt="Dirección" style="display: block; margin-top: 2px;" />
+      </td>
+      <td style="padding: 3px 0;">
+        <span style="color: #666;">${address}</span>
+      </td>
+    </tr>
+    ` : ''}
+    ${socialHTML}
+  </tbody>
+</table>
+    `.trim();
   }
 
   // 4. Generar URL con parámetros GET para rellenar el formulario
@@ -251,96 +399,96 @@
   }
 </script>
 
-<div class="space-y-6">
+<div class="space-y-4">
   <!-- 4 Botones de Exportación -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
     
     <!-- 1. Copiar HTML -->
     <button
-      class="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white p-4 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      class="group relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
       on:click={copyHTML}
       disabled={isProcessing}
     >
-      <div class="flex flex-col items-center space-y-2">
-        <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
             <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
           </svg>
         </div>
-        <div class="text-center">
-          <h3 class="font-semibold text-sm">Copiar HTML</h3>
-          <p class="text-xs text-blue-100">
+        <div class="text-left flex-1">
+          <h3 class="font-bold text-sm">Copiar HTML</h3>
+          <p class="text-xs text-blue-50">
             Código para cliente de correo
           </p>
         </div>
       </div>
-      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
     </button>
 
     <!-- 2. Generar Imagen -->
     <button
-      class="group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white p-4 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      class="group relative overflow-hidden bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
       on:click={generateImage}
       disabled={isProcessing}
     >
-      <div class="flex flex-col items-center space-y-2">
-        <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
             <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
           </svg>
         </div>
-        <div class="text-center">
-          <h3 class="font-semibold text-sm">Generar Imagen</h3>
-          <p class="text-xs text-emerald-100">
+        <div class="text-left flex-1">
+          <h3 class="font-bold text-sm">Generar Imagen</h3>
+          <p class="text-xs text-emerald-50">
             Descarga como PNG
           </p>
         </div>
       </div>
-      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
     </button>
 
     <!-- 3. Copiar URL -->
     <button
-      class="group relative overflow-hidden bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white p-4 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      class="group relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
       on:click={copyPrefilledURL}
       disabled={isProcessing}
     >
-      <div class="flex flex-col items-center space-y-2">
-        <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
             <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
           </svg>
         </div>
-        <div class="text-center">
-          <h3 class="font-semibold text-sm">Copiar URL</h3>
-          <p class="text-xs text-purple-100">
+        <div class="text-left flex-1">
+          <h3 class="font-bold text-sm">Copiar URL</h3>
+          <p class="text-xs text-purple-50">
             Enlace con datos precargados
           </p>
         </div>
       </div>
-      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
     </button>
 
     <!-- 4. Copiar Texto Tabla -->
     <button
-      class="group relative overflow-hidden bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white p-4 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      class="group relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
       on:click={copyPlainText}
       disabled={isProcessing}
     >
-      <div class="flex flex-col items-center space-y-2">
-        <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
             <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
         </div>
-        <div class="text-center">
-          <h3 class="font-semibold text-sm">Copiar Tabla</h3>
-          <p class="text-xs text-orange-100">
+        <div class="text-left flex-1">
+          <h3 class="font-bold text-sm">Copiar Tabla</h3>
+          <p class="text-xs text-orange-50">
             Formato rico con imágenes
           </p>
         </div>
       </div>
-      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
     </button>
   </div>
 

@@ -16,6 +16,7 @@
     // Cargar datos desde URL parameters si están disponibles
     const urlParams = $page.url.searchParams;
     
+    // Solo procesar parámetros URL si realmente hay parámetros nuevos
     if (urlParams.size > 0) {
       const prefilledData: any = {};
       
@@ -37,23 +38,38 @@
       if (urlParams.get('github')) prefilledData.github = urlParams.get('github');
       if (urlParams.get('instagram')) prefilledData.instagram = urlParams.get('instagram');
       
+      // Cargar datos de imagen desde URL
+      if (urlParams.get('imageUrl')) {
+        prefilledData.image = {
+          url: urlParams.get('imageUrl')!,
+          shape: (urlParams.get('imageShape') as 'circle' | 'square' | 'rounded') || 'circle',
+          size: (urlParams.get('imageSize') as 'small' | 'medium' | 'large') || 'medium'
+        };
+      }
+      
       // También mapear campos legacy
       if (urlParams.get('name') && !prefilledData.fullName) prefilledData.fullName = urlParams.get('name');
       if (urlParams.get('title') && !prefilledData.position) prefilledData.position = urlParams.get('title');
       
-      // Actualizar el store con los datos precargados
+      // Actualizar el store con los datos precargados SOLO si hay datos nuevos
       if (Object.keys(prefilledData).length > 0) {
-        signatureData.update(data => ({
-          ...data,
+        // Forzar una actualización completa del store
+        signatureData.set({
+          ...$signatureData,
           ...prefilledData
-        }));
+        });
         
-        // Marcar todos los pasos como completados cuando se cargan datos desde URL
-        markAllStepsAsCompleted();
-        
-        showToast('success', '✅ Datos cargados desde URL compartida');
+        // Esperar un tick para que el store se actualice
+        setTimeout(() => {
+          // Marcar todos los pasos como completados cuando se cargan datos desde URL
+          markAllStepsAsCompleted();
+          
+          showToast('success', '✅ Datos cargados desde URL compartida');
+        }, 50);
       }
     }
+    // Si NO hay parámetros URL, simplemente no hacer nada
+    // Los datos del store se mantienen intactos
     
     setTimeout(() => {
       isLoaded = true;
@@ -133,7 +149,7 @@
       {#each templates as template, index}
         <button 
           on:click={() => selectTemplate(template.id)}
-          class="relative overflow-hidden rounded-lg transition-all duration-300 cursor-pointer w-full text-left border-2 template-card {selectedTemplateId === template.id ? 'bg-red-50 border-red-500 shadow-lg selected' : 'bg-white border-gray-300 shadow-sm hover:shadow-md hover:border-red-200'}"
+          class="relative overflow-hidden rounded-lg transition-all duration-300 cursor-pointer w-full text-left border-2 template-card {selectedTemplateId === template.id ? 'bg-blue-50 border-blue-500 shadow-lg selected' : 'bg-white border-gray-300 shadow-sm hover:shadow-md hover:border-blue-300'}"
           style="
             height: 50px;
             animation-delay: {index * 100}ms;
@@ -142,19 +158,19 @@
           on:mouseenter={(e) => {
             if (selectedTemplateId !== template.id) {
               e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = '0 8px 20px rgba(80, 118, 135, 0.12)';
-              e.currentTarget.style.borderColor = 'rgba(80, 118, 135, 0.4)';
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(59, 130, 246, 0.2)';
+              e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)';
             }
           }}
           on:mouseleave={(e) => {
             if (selectedTemplateId === template.id) {
               e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 8px 25px rgba(184, 0, 31, 0.15)';
-              e.currentTarget.style.borderColor = '#B8001F';
+              e.currentTarget.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.25)';
+              e.currentTarget.style.borderColor = 'rgb(59, 130, 246)';
             } else {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(56, 75, 112, 0.08)';
-              e.currentTarget.style.borderColor = 'rgba(56, 75, 112, 0.2)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
+              e.currentTarget.style.borderColor = 'rgb(209, 213, 219)';
             }
           }}
         >
@@ -169,7 +185,7 @@
             z-index: 10;
           ">
             <!-- Solo el nombre -->
-            <h3 class="text-xs font-semibold transition-all duration-300 text-center m-0 {selectedTemplateId === template.id ? 'text-accent' : 'text-card-foreground'}"
+            <h3 class="text-xs font-semibold transition-all duration-300 text-center m-0 {selectedTemplateId === template.id ? 'text-blue-700' : 'text-gray-800'}"
                 style="line-height: 1.1;">
               {template.name}
             </h3>
@@ -191,7 +207,7 @@
         <div class="w-full max-w-sm">
           <button 
             on:click={continueToNextStep}
-            class="w-full bg-accent text-accent-foreground hover:bg-accent-foreground hover:text-accent border-2 border-accent px-4 py-3 rounded-lg font-semibold transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm"
+            class="w-full bg-blue-600 text-white hover:bg-blue-700 border-2 border-blue-600 hover:border-blue-700 px-4 py-3 rounded-lg font-semibold transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm"
           >
             <div class="flex items-center justify-center gap-2">
               <span>Continuar</span>
