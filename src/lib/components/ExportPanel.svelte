@@ -219,7 +219,7 @@
     const phone = data.phone || '';
     const website = data.website || '';
     const address = data.address || '';
-    const primaryColor = data.primaryColor || '#3b82f6';
+    const primaryColor = data.primaryColor || '#1e40af';
     
     // Generar imagen si existe
     const imageHTML = data.image?.url ? `
@@ -385,7 +385,10 @@
     
     <!-- 1. Copiar HTML -->
     <button
-      class="group relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      class="group relative overflow-hidden text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      style="background-color: #9FD5D1;"
+      on:mouseenter={(e) => e.currentTarget.style.backgroundColor = '#7ec9c4'}
+      on:mouseleave={(e) => e.currentTarget.style.backgroundColor = '#9FD5D1'}
       on:click={copyHTML}
       disabled={isProcessing}
     >
@@ -397,17 +400,19 @@
         </div>
         <div class="text-left flex-1">
           <h3 class="font-bold text-sm">Copiar HTML</h3>
-          <p class="text-xs text-blue-50">
+          <p class="text-xs opacity-90">
             Código para cliente de correo
           </p>
         </div>
       </div>
-      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
     </button>
 
     <!-- 2. Generar Imagen -->
     <button
-      class="group relative overflow-hidden bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      class="group relative overflow-hidden text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      style="background-color: #9FD5D1;"
+      on:mouseenter={(e) => e.currentTarget.style.backgroundColor = '#7ec9c4'}
+      on:mouseleave={(e) => e.currentTarget.style.backgroundColor = '#9FD5D1'}
       on:click={generateImage}
       disabled={isProcessing}
     >
@@ -419,17 +424,19 @@
         </div>
         <div class="text-left flex-1">
           <h3 class="font-bold text-sm">Generar Imagen</h3>
-          <p class="text-xs text-emerald-50">
+          <p class="text-xs opacity-90">
             Descarga como PNG
           </p>
         </div>
       </div>
-      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
     </button>
 
     <!-- 3. Copiar URL -->
     <button
-      class="group relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      class="group relative overflow-hidden text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      style="background-color: #9FD5D1;"
+      on:mouseenter={(e) => e.currentTarget.style.backgroundColor = '#7ec9c4'}
+      on:mouseleave={(e) => e.currentTarget.style.backgroundColor = '#9FD5D1'}
       on:click={copyPrefilledURL}
       disabled={isProcessing}
     >
@@ -441,17 +448,19 @@
         </div>
         <div class="text-left flex-1">
           <h3 class="font-bold text-sm">Copiar URL</h3>
-          <p class="text-xs text-purple-50">
+          <p class="text-xs opacity-90">
             Enlace con datos precargados
           </p>
         </div>
       </div>
-      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
     </button>
 
     <!-- 4. Copiar Texto Tabla -->
     <button
-      class="group relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      class="group relative overflow-hidden text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+      style="background-color: #9FD5D1;"
+      on:mouseenter={(e) => e.currentTarget.style.backgroundColor = '#7ec9c4'}
+      on:mouseleave={(e) => e.currentTarget.style.backgroundColor = '#9FD5D1'}
       on:click={copyPlainText}
       disabled={isProcessing}
     >
@@ -463,12 +472,11 @@
         </div>
         <div class="text-left flex-1">
           <h3 class="font-bold text-sm">Copiar Tabla</h3>
-          <p class="text-xs text-orange-50">
+          <p class="text-xs opacity-90">
             Formato rico con imágenes
           </p>
         </div>
       </div>
-      <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
     </button>
   </div>
 
@@ -483,7 +491,7 @@
   {/if}
 
   <!-- Información adicional -->
-  <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border mt-4" style="padding: 1rem;">
+  <div class="bg-gray-100 rounded-xl border mt-4" style="padding: 1rem;">
     <h3 class="font-semibold text-gray-900 mb-2 flex items-center">
       <svg class="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
         <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>

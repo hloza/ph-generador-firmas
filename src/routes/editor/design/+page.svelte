@@ -2,11 +2,11 @@
   import { signatureData } from '$lib/stores/signature.js';
   import { markStepAsCompleted, getNextStep, getPreviousStep } from '$lib/stores/navigation.js';
   import { goto } from '$app/navigation';
-  import { colorPresets } from '$lib/data/templates.js';
+  import { colorPresets, accentColorPresets } from '$lib/data/templates.js';
 
   let formData = {
-    primaryColor: $signatureData.primaryColor || '#3b82f6',
-    accentColor: $signatureData.accentColor || '#8b5cf6',
+    primaryColor: $signatureData.primaryColor || '#1e40af',
+    accentColor: $signatureData.accentColor || '#d97706',
     fontFamily: $signatureData.fontFamily || 'modern'
   };
 
@@ -97,7 +97,7 @@
               Color Secundario
             </div>
             <div class="grid grid-cols-5 gap-3" aria-labelledby="accent-color-label">
-              {#each colorPresets as color}
+              {#each accentColorPresets as color}
                 <button
                   class="w-12 h-12 rounded-lg border-2 transition-all duration-200 {formData.accentColor === color.value ? 'border-emerald-500 scale-110 shadow-lg' : 'border-gray-300 hover:border-gray-400'}"
                   style="background-color: {color.value}"

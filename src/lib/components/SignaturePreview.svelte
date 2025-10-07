@@ -4,6 +4,9 @@
   import type { Template } from '../stores/signature.js';
   import { placeholderData, getValueOrPlaceholder, shouldShowSection, hasUserData } from '../data/placeholders.js';
 
+  const primaryColor = $signatureData.primaryColor || '#1e40af';
+  const accentColor = $signatureData.accentColor || '#d97706';
+
   $: selectedTemplateId = $signatureData.templateId;
   $: selectedTemplate = selectedTemplateId ? templates.find((t: Template) => t.id === selectedTemplateId) : null;
   
@@ -167,38 +170,38 @@
       
       if (linkedin) {
         socials.push(`
-          <a href="${linkedin}" style="text-decoration: none; margin-right: 4px; display: inline-block;">
-            <img src="https://img.icons8.com/fluency/48/linkedin.png" alt="LinkedIn" style="width: ${isMobile ? '14px' : '16px'}; height: ${isMobile ? '14px' : '16px'}; vertical-align: middle;" />
+          <a href="${linkedin}" style="text-decoration: none; margin-right: 6px; display: inline-block;">
+            <img src="https://img.icons8.com/fluency/48/linkedin.png" alt="LinkedIn" style="width: ${isMobile ? '18px' : '22px'}; height: ${isMobile ? '18px' : '22px'}; vertical-align: middle;" />
           </a>
         `);
       }
       
       if (twitter) {
         socials.push(`
-          <a href="${twitter}" style="text-decoration: none; margin-right: 4px; display: inline-block;">
-            <img src="https://img.icons8.com/ios-filled/50/twitterx--v1.png" alt="Twitter/X" style="width: ${isMobile ? '14px' : '16px'}; height: ${isMobile ? '14px' : '16px'}; vertical-align: middle;" />
+          <a href="${twitter}" style="text-decoration: none; margin-right: 6px; display: inline-block;">
+            <img src="https://img.icons8.com/ios-filled/50/twitterx--v1.png" alt="Twitter/X" style="width: ${isMobile ? '18px' : '22px'}; height: ${isMobile ? '18px' : '22px'}; vertical-align: middle;" />
           </a>
         `);
       }
       
       if (github) {
         socials.push(`
-          <a href="${github}" style="text-decoration: none; margin-right: 4px; display: inline-block;">
-            <img src="https://img.icons8.com/glyph-neue/64/github.png" alt="GitHub" style="width: ${isMobile ? '14px' : '16px'}; height: ${isMobile ? '14px' : '16px'}; vertical-align: middle;" />
+          <a href="${github}" style="text-decoration: none; margin-right: 6px; display: inline-block;">
+            <img src="https://img.icons8.com/glyph-neue/64/github.png" alt="GitHub" style="width: ${isMobile ? '18px' : '22px'}; height: ${isMobile ? '18px' : '22px'}; vertical-align: middle;" />
           </a>
         `);
       }
       
       if (instagram) {
         socials.push(`
-          <a href="${instagram}" style="text-decoration: none; margin-right: 4px; display: inline-block;">
-            <img src="https://img.icons8.com/3d-fluency/94/instagram-logo.png" alt="Instagram" style="width: ${isMobile ? '14px' : '16px'}; height: ${isMobile ? '14px' : '16px'}; vertical-align: middle;" />
+          <a href="${instagram}" style="text-decoration: none; margin-right: 6px; display: inline-block;">
+            <img src="https://img.icons8.com/3d-fluency/94/instagram-logo.png" alt="Instagram" style="width: ${isMobile ? '18px' : '22px'}; height: ${isMobile ? '18px' : '22px'}; vertical-align: middle;" />
           </a>
         `);
       }
       
       return socials.length > 0 ? `
-        <div style="margin-top: ${isMobile ? '8px' : '10px'}; display: flex; align-items: center; justify-content: center; gap: 2px;">
+        <div style="margin-top: ${isMobile ? '8px' : '10px'}; display: flex; align-items: center; ${isMobile ? 'justify-content: center;' : 'justify-content: flex-start;'} gap: 4px;">
           ${socials.join('')}
         </div>
       ` : '';
@@ -276,7 +279,7 @@
 
       // PROFESSIONAL MODERN - Moderno con estructura equilibrada
       'professional-2': `
-        <div style="${fontStyle} max-width: 710px; width: 100%; ${isMobile ? 'padding: 20px; text-align: center;' : 'display: flex; align-items: center; gap: 22px; background: linear-gradient(135deg, ' + primaryColor + '08, ' + accentColor + '05); padding: 20px; border-radius: 10px;'}">
+        <div style="${fontStyle} max-width: 710px; width: 100%; ${isMobile ? 'padding: 20px; text-align: center;' : 'display: flex; align-items: center; gap: 22px; background: ' + primaryColor + '08; padding: 20px; border-radius: 10px;'}">
           ${isMobile ? getImageHtml() : ''}
           ${!isMobile ? getImageHtml(true) : ''}
           <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
@@ -298,12 +301,12 @@
 
       // CREATIVE BOLD - Colores vibrantes y diseño dinámico
       'creative-1': `
-        <div style="${fontStyle} max-width: 730px; width: 100%; ${isMobile ? 'padding: 24px; text-align: center;' : 'display: flex; align-items: center; gap: 24px; background: linear-gradient(45deg, ' + primaryColor + '15, ' + accentColor + '15); padding: 24px; border-radius: 14px; border: 2px solid ' + primaryColor + '30;'}">
+        <div style="${fontStyle} max-width: 730px; width: 100%; ${isMobile ? 'padding: 24px; text-align: center;' : 'display: flex; align-items: center; gap: 24px; background: ' + primaryColor + '15; padding: 24px; border-radius: 14px; border: 2px solid ' + primaryColor + '30;'}">
           ${isMobile ? getImageHtml() : ''}
           ${!isMobile ? getImageHtml(true) : ''}
           <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
-            <h3 style="background: linear-gradient(45deg, ${primaryColor}, ${accentColor}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0 0 6px 0; font-size: ${isMobile ? '18px' : '20px'}; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); ${placeholderStyle}">${name}</h3>
-            <div style="background: linear-gradient(135deg, ${accentColor}, ${primaryColor}); color: white; display: inline-block; padding: 4px 12px; border-radius: 18px; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 700; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); ${placeholderStyle}">${title}</div>
+            <h3 style="color: ${primaryColor}; margin: 0 0 6px 0; font-size: ${isMobile ? '18px' : '20px'}; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); ${placeholderStyle}">${name}</h3>
+            <div style="background: ${accentColor}; color: white; display: inline-block; padding: 4px 12px; border-radius: 18px; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 700; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); ${placeholderStyle}">${title}</div>
             ${shouldShowSection($signatureData.company, showPlaceholders) ? `<p style="color: #333; margin: 0 0 10px 0; font-size: ${isMobile ? '11px' : '12px'}; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; ${placeholderStyle}">${company}${department}</p>` : ''}
             
             <div style="background: rgba(255,255,255,0.9); padding: 12px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); font-size: ${isMobile ? '9px' : '10px'}; color: #555;">
@@ -325,7 +328,7 @@
           ${!isMobile ? getImageHtml(true) : ''}
           <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
             <h3 style="color: ${primaryColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '16px' : '18px'}; font-weight: 400; letter-spacing: 0.5px; font-family: Verdana, Geneva, Tahoma, sans-serif; ${placeholderStyle}">${name}</h3>
-            <div style="width: 40px; height: 2px; background: linear-gradient(to right, ${primaryColor}, ${accentColor}); margin: 0 ${isMobile ? 'auto' : '0'} 6px ${isMobile ? 'auto' : '0'};"></div>
+            <div style="width: 40px; height: 2px; background: ${primaryColor}; margin: 0 ${isMobile ? 'auto' : '0'} 6px ${isMobile ? 'auto' : '0'};"></div>
             <p style="color: ${accentColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '12px' : '13px'}; font-weight: 600; font-style: italic; ${placeholderStyle}">${title}</p>
             ${shouldShowSection($signatureData.company, showPlaceholders) ? `<p style="color: #666; margin: 0 0 8px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 500; font-family: Verdana, Geneva, Tahoma, sans-serif; ${placeholderStyle}">${company}${department}</p>` : ''}
             
@@ -351,7 +354,7 @@
     <!-- Vista previa con plantilla seleccionada -->
     <div class="space-y-6">
       <!-- Simulación de email compacta -->
-      <div class="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+      <div class="bg-slate-800 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
         <!-- Header del email simulado compacto -->
         <div class="flex items-center justify-between mb-3 pb-2 border-b border-white/10">
           <div class="flex space-x-1">
@@ -385,7 +388,7 @@
     <div class="flex flex-col items-center justify-center h-full text-center space-y-6">
       <!-- Icono central animado -->
       <div class="relative">
-        <div class="w-24 h-24 bg-gradient-to-br from-slate-700/30 to-slate-800/30 rounded-full flex items-center justify-center border-4 border-dashed border-slate-600/50 backdrop-blur-sm">
+        <div class="w-24 h-24 bg-slate-700/30 rounded-full flex items-center justify-center border-4 border-dashed border-slate-600/50 backdrop-blur-sm">
           <svg class="w-12 h-12 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>

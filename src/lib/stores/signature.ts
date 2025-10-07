@@ -63,7 +63,7 @@ const initialSignatureData: SignatureData = {
     { platform: 'facebook', url: '', enabled: false },
     { platform: 'youtube', url: '', enabled: false }
   ],
-  primaryColor: '#0ea5e9',
+  primaryColor: '#1e40af',
   templateId: 'minimal-1',
   // Valores por defecto para personalización
   name: '',
@@ -73,7 +73,7 @@ const initialSignatureData: SignatureData = {
   twitter: '',
   github: '',
   instagram: '',
-  accentColor: '#8b5cf6',
+  accentColor: '#d97706',
   fontFamily: 'modern'
 };
 

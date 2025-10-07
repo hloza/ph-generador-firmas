@@ -35,8 +35,8 @@ export function generateSignatureHTML(data: SignatureData, forMobile: boolean = 
     : '';
   
   // Valores de personalización
-  const primaryColor = data.primaryColor || '#3b82f6';
-  const accentColor = data.accentColor || '#8b5cf6';
+  const primaryColor = data.primaryColor || '#1e40af';
+  const accentColor = data.accentColor || '#d97706';
   const fontFamily = data.fontFamily || 'modern';
   
   // Indicador visual de placeholder (opacidad y estilo)
@@ -150,38 +150,38 @@ export function generateSignatureHTML(data: SignatureData, forMobile: boolean = 
     
     if (linkedin) {
       socials.push(`
-        <a href="${linkedin}" style="text-decoration: none; margin-right: 4px; display: inline-block;">
-          <img src="https://img.icons8.com/fluency/48/linkedin.png" alt="LinkedIn" style="width: 16px; height: 16px; vertical-align: middle;" />
+        <a href="${linkedin}" style="text-decoration: none; margin-right: 6px; display: inline-block;">
+          <img src="https://img.icons8.com/fluency/48/linkedin.png" alt="LinkedIn" style="width: 22px; height: 22px; vertical-align: middle;" />
         </a>
       `);
     }
     
     if (twitter) {
       socials.push(`
-        <a href="${twitter}" style="text-decoration: none; margin-right: 4px; display: inline-block;">
-          <img src="https://img.icons8.com/ios-filled/50/twitterx--v1.png" alt="Twitter/X" style="width: 16px; height: 16px; vertical-align: middle;" />
+        <a href="${twitter}" style="text-decoration: none; margin-right: 6px; display: inline-block;">
+          <img src="https://img.icons8.com/ios-filled/50/twitterx--v1.png" alt="Twitter/X" style="width: 22px; height: 22px; vertical-align: middle;" />
         </a>
       `);
     }
     
     if (github) {
       socials.push(`
-        <a href="${github}" style="text-decoration: none; margin-right: 4px; display: inline-block;">
-          <img src="https://img.icons8.com/glyph-neue/64/github.png" alt="GitHub" style="width: 16px; height: 16px; vertical-align: middle;" />
+        <a href="${github}" style="text-decoration: none; margin-right: 6px; display: inline-block;">
+          <img src="https://img.icons8.com/glyph-neue/64/github.png" alt="GitHub" style="width: 22px; height: 22px; vertical-align: middle;" />
         </a>
       `);
     }
     
     if (instagram) {
       socials.push(`
-        <a href="${instagram}" style="text-decoration: none; margin-right: 4px; display: inline-block;">
-          <img src="https://img.icons8.com/3d-fluency/94/instagram-logo.png" alt="Instagram" style="width: 16px; height: 16px; vertical-align: middle;" />
+        <a href="${instagram}" style="text-decoration: none; margin-right: 6px; display: inline-block;">
+          <img src="https://img.icons8.com/3d-fluency/94/instagram-logo.png" alt="Instagram" style="width: 22px; height: 22px; vertical-align: middle;" />
         </a>
       `);
     }
     
     return socials.length > 0 ? `
-      <div style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 2px;">
+      <div style="margin-top: 10px; display: flex; align-items: center; ${isMobile ? 'justify-content: center;' : 'justify-content: flex-start;'} gap: 4px;">
         ${socials.join('')}
       </div>
     ` : '';
@@ -255,7 +255,7 @@ export function generateSignatureHTML(data: SignatureData, forMobile: boolean = 
 
     // PROFESSIONAL MODERN - Moderno con estructura equilibrada
     'professional-2': `
-      <div style="${fontStyle} max-width: ${isMobile ? '400px' : '710px'}; width: 100%; display: flex; ${isMobile ? 'flex-direction: column; text-align: center;' : 'flex-direction: row;'} align-items: center; gap: 22px; background: linear-gradient(135deg, ${primaryColor}08, ${accentColor}05); padding: 20px; border-radius: 10px;">
+      <div style="${fontStyle} max-width: ${isMobile ? '400px' : '710px'}; width: 100%; display: flex; ${isMobile ? 'flex-direction: column; text-align: center;' : 'flex-direction: row;'} align-items: center; gap: 22px; background: ${primaryColor}08; padding: 20px; border-radius: 10px;">
         ${data.image?.url ? getImageHtml(true) : ''}
         <div style="flex: 1; min-width: 0; width: 100%;">
           <h3 style="color: ${primaryColor}; margin: 0 0 4px 0; font-size: 17px; font-weight: 600; letter-spacing: 0.3px; ${placeholderStyle}">${name}</h3>
@@ -276,11 +276,11 @@ export function generateSignatureHTML(data: SignatureData, forMobile: boolean = 
 
     // CREATIVE BOLD - Colores vibrantes y diseño dinámico
     'creative-1': `
-      <div style="${fontStyle} max-width: ${isMobile ? '400px' : '580px'}; width: 100%; display: flex; ${isMobile ? 'flex-direction: column; text-align: center;' : 'flex-direction: row;'} align-items: center; gap: 20px; background: linear-gradient(45deg, ${primaryColor}15, ${accentColor}15); padding: 20px; border-radius: 12px; border: 2px solid ${primaryColor}30;">
+      <div style="${fontStyle} max-width: ${isMobile ? '400px' : '580px'}; width: 100%; display: flex; ${isMobile ? 'flex-direction: column; text-align: center;' : 'flex-direction: row;'} align-items: center; gap: 20px; background: ${primaryColor}15; padding: 20px; border-radius: 12px; border: 2px solid ${primaryColor}30;">
         ${data.image?.url ? getImageHtml(true) : ''}
         <div style="flex: 1; min-width: 0; width: 100%;">
-          <h3 style="background: linear-gradient(45deg, ${primaryColor}, ${accentColor}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0 0 6px 0; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); ${placeholderStyle}">${name}</h3>
-          <div style="background: linear-gradient(135deg, ${accentColor}, ${primaryColor}); color: white; display: inline-block; padding: 4px 12px; border-radius: 18px; font-size: 11px; font-weight: 700; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); ${placeholderStyle}">${title}</div>
+          <h3 style="color: ${primaryColor}; margin: 0 0 6px 0; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); ${placeholderStyle}">${name}</h3>
+          <div style="background: ${accentColor}; color: white; display: inline-block; padding: 4px 12px; border-radius: 18px; font-size: 11px; font-weight: 700; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); ${placeholderStyle}">${title}</div>
           ${shouldShowSection(data.company, showPlaceholders) ? `<p style="color: #333; margin: 0 0 10px 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; ${placeholderStyle}">${company}${department}</p>` : ''}
           
           <div style="background: rgba(255,255,255,0.9); padding: 12px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); font-size: 10px; color: #555;">
@@ -301,7 +301,7 @@ export function generateSignatureHTML(data: SignatureData, forMobile: boolean = 
         ${data.image?.url ? getImageHtml(true) : ''}
         <div style="flex: 1; min-width: 0; width: 100%;">
           <h3 style="color: ${primaryColor}; margin: 0 0 3px 0; font-size: 18px; font-weight: 400; letter-spacing: 0.5px; font-family: Verdana, Geneva, Tahoma, sans-serif; ${placeholderStyle}">${name}</h3>
-          <div style="width: 40px; height: 2px; background: linear-gradient(to right, ${primaryColor}, ${accentColor}); margin: ${isMobile ? '0 auto 6px auto' : '0 0 6px 0'};"></div>
+          <div style="width: 40px; height: 2px; background: ${primaryColor}; margin: ${isMobile ? '0 auto 6px auto' : '0 0 6px 0'};"></div>
           <p style="color: ${accentColor}; margin: 0 0 3px 0; font-size: 13px; font-weight: 600; font-style: italic; ${placeholderStyle}">${title}</p>
           ${shouldShowSection(data.company, showPlaceholders) ? `<p style="color: #666; margin: 0 0 8px 0; font-size: 11px; font-weight: 500; font-family: Verdana, Geneva, Tahoma, sans-serif; ${placeholderStyle}">${company}${department}</p>` : ''}
           

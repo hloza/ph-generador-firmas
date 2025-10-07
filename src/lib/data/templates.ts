@@ -53,26 +53,21 @@ export const templates: Template[] = [
 ];
 
 export const colorPresets = [
-  // Colores profesionales
-  { name: 'Azul Corporativo', value: '#0ea5e9' },
-  { name: 'Verde Empresarial', value: '#10b981' },
-  { name: 'Púrpura Elegante', value: '#8b5cf6' },
-  { name: 'Gris Ejecutivo', value: '#6b7280' },
-  { name: 'Índigo Premium', value: '#6366f1' },
-  
-  // Colores vibrantes
-  { name: 'Rosa Dinámico', value: '#ec4899' },
-  { name: 'Naranja Energético', value: '#f97316' },
-  { name: 'Rojo Impactante', value: '#ef4444' },
-  { name: 'Esmeralda Brillante', value: '#059669' },
-  { name: 'Ámbar Cálido', value: '#d97706' },
-  
-  // Colores sofisticados
-  { name: 'Azul Marino', value: '#1e40af' },
-  { name: 'Verde Bosque', value: '#065f46' },
-  { name: 'Púrpura Real', value: '#7c3aed' },
-  { name: 'Coral Suave', value: '#f87171' },
-  { name: 'Turquesa', value: '#06b6d4' }
+  // Colores ejecutivos y formales con alto contraste
+  { name: 'Azul Corporativo', value: '#1e40af' },
+  { name: 'Verde Empresarial', value: '#065f46' },
+  { name: 'Gris Ejecutivo', value: '#374151' },
+  { name: 'Púrpura Profesional', value: '#6b21a8' },
+  { name: 'Azul Marino', value: '#0c4a6e' }
+];
+
+export const accentColorPresets = [
+  // Colores de acento que contrastan con los principales
+  { name: 'Dorado Profesional', value: '#d97706' },
+  { name: 'Esmeralda', value: '#059669' },
+  { name: 'Índigo', value: '#4f46e5' },
+  { name: 'Slate Claro', value: '#64748b' },
+  { name: 'Teal Corporativo', value: '#0d9488' }
 ];
 
 export const socialPlatforms = [

@@ -5,19 +5,34 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Redefinir blue con verde agua
+        blue: {
+          50: '#f0faf9',
+          100: '#d9f2f0',
+          200: '#b3e5e0',
+          300: '#9FD5D1',  // Color principal
+          400: '#7ec9c4',
+          500: '#5fb3ae',
+          600: '#4a9d98',
+          700: '#3a7e7a',
+          800: '#2d6361',
+          900: '#1f4544',
+          950: '#162f2e',
+          DEFAULT: '#9FD5D1'
+        },
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-          950: '#172554',
-          DEFAULT: '#3b82f6',
+          50: '#f0faf9',
+          100: '#d9f2f0',
+          200: '#b3e5e0',
+          300: '#9FD5D1',
+          400: '#7ec9c4',
+          500: '#5fb3ae',
+          600: '#4a9d98',
+          700: '#3a7e7a',
+          800: '#2d6361',
+          900: '#1f4544',
+          950: '#162f2e',
+          DEFAULT: '#9FD5D1',
           foreground: '#ffffff'
         },
         secondary: {
@@ -43,7 +58,7 @@ export default {
         },
         border: '#334155',
         input: '#1e293b',
-        ring: '#3b82f6'
+        ring: '#9FD5D1'
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

@@ -48,7 +48,7 @@
             { platform: 'facebook', url: '', enabled: false },
             { platform: 'youtube', url: '', enabled: false }
           ],
-          primaryColor: '#0ea5e9',
+          primaryColor: '#1e40af',
           templateId: 'minimal-1',
           name: '',
           title: '',
@@ -57,7 +57,7 @@
           twitter: '',
           github: '',
           instagram: '',
-          accentColor: '#8b5cf6',
+          accentColor: '#d97706',
           fontFamily: 'modern'
         });
         
@@ -149,19 +149,19 @@
 		<div class="max-w-full mx-auto px-4 py-2">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-4">
-					<div class="bg-primary text-primary-foreground p-3 rounded-lg shadow-lg">
+					<div class="bg-slate-700 text-white p-3 rounded-lg shadow-md">
 						<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
 						</svg>
 					</div>
 					<div>
-						<h1 class="text-2xl font-bold text-foreground">Generador de Firmas</h1>
-						<p class="text-sm text-muted-foreground">Crea firmas profesionales con estilo</p>
+						<h1 class="text-2xl font-bold text-slate-800">Generador de Firmas</h1>
+						<p class="text-sm text-slate-600">Crea firmas profesionales con estilo</p>
 					</div>
 				</div>
 				<div class="flex items-center space-x-4">
 					<button 
-						class="flex items-center space-x-2 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium" 
+						class="flex items-center space-x-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-all duration-200 text-sm font-medium border border-slate-300 shadow-sm" 
 						aria-label="Limpiar todos los datos"
 						on:click={clearAllData}
 					>
@@ -180,22 +180,18 @@
 	<div style="width: 40%; flex-shrink: 0; height: calc(100vh - 80px); overflow-y: auto;">
 		<div class="bg-white text-gray-800 p-4 rounded-lg border border-gray-200 shadow-lg">
 			<div class="flex items-center justify-between mb-4">
-				<h2 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Progreso</h2>
-				<div class="flex items-center space-x-1 text-xs text-gray-600">
-					<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-					<span>En línea</span>
-				</div>
+				<h2 class="text-xl font-bold text-slate-700">Progreso</h2>
 			</div>
 			
 			<!-- Barra de progreso general -->
 			<div class="mb-4">
-				<div class="flex justify-between text-sm text-gray-600 mb-2">
+				<div class="flex justify-between text-sm text-slate-600 mb-2">
 					<span>Completado</span>
 					<span>{Math.round(($stepsStore.filter(s => s.completed).length / $stepsStore.length) * 100)}%</span>
 				</div>
 				<div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
 					<div 
-						class="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-500 ease-out"
+						class="h-full bg-blue-600 rounded-full transition-all duration-500 ease-out"
 						style="width: {($stepsStore.filter(s => s.completed).length / $stepsStore.length) * 100}%"
 					></div>
 					</div>
@@ -210,22 +206,22 @@
 							>
 								<!-- Indicador de conexión vertical -->
 								{#if index < $stepsStore.length - 1}
-									<div class="absolute left-6 top-14 w-0.5 h-6 {step.completed ? 'bg-green-400' : 'bg-gray-300'} transition-colors duration-300"></div>
+									<div class="absolute left-6 top-14 w-0.5 h-6 {step.completed ? 'bg-blue-400' : 'bg-gray-300'} transition-colors duration-300"></div>
 								{/if}
 								
 								<div class="step-icon">
 									{#if step.completed}
-										<div class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+										<div class="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-sm">
 											<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
 												<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
 											</svg>
 										</div>
 									{:else if $currentStep === step.id}
-										<div class="w-5 h-5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+										<div class="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
 											{index + 1}
 										</div>
 									{:else}
-										<div class="w-5 h-5 bg-gray-200 border-2 border-gray-300 rounded-full flex items-center justify-center text-gray-600 text-sm group-hover:border-blue-400 group-hover:text-blue-600 transition-all duration-200">
+										<div class="w-5 h-5 bg-gray-200 border-2 border-gray-300 rounded-full flex items-center justify-center text-gray-600 text-sm group-hover:border-blue-500 group-hover:text-blue-600 transition-all duration-200">
 											{index + 1}
 										</div>
 									{/if}
@@ -261,43 +257,44 @@
 	<div style="flex: 1; min-width: 0; height: calc(100vh - 80px); overflow-y: auto;">
 		<div class="bg-white text-gray-800 p-4 rounded-lg border border-gray-300 shadow-lg">
 			<div class="flex items-center justify-between mb-3">
-				<h3 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">Vista Previa</h3>
+				<h3 class="text-xl font-bold text-slate-700">Vista Previa</h3>
 				<div class="flex items-center space-x-2">
 					<button 
-						class="p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors" 
+						class="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md" 
 						title="Ver en correo electrónico" 
 						aria-label="Ver firma en simulador de correo electrónico"
 						on:click={showEmailSimulator}
 					>
-						<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-							<path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
 						</svg>
+						<span>Ver en correo electrónico</span>
 					</button>
 				</div>
 			</div>
 			
 			<div class="relative">
-					<div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl"></div>
-					<div class="relative bg-white backdrop-blur-sm rounded-2xl p-6 min-h-[200px] flex items-start justify-center border border-gray-200 shadow-sm">
+					<div class="absolute inset-0 bg-slate-50 rounded-2xl"></div>
+					<div class="relative bg-white backdrop-blur-sm rounded-2xl p-6 min-h-[200px] flex items-start justify-center border border-slate-200 shadow-sm">
 						<SignaturePreview />
 					</div>
 					
 					<!-- Indicadores de estado -->
 					<div class="absolute top-3 right-3 flex space-x-2">
-						<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" title="Vista previa activa"></div>
-						<div class="w-2 h-2 bg-blue-500 rounded-full" title="Sincronizado"></div>
+						<div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse" title="Vista previa activa"></div>
+						<div class="w-2 h-2 bg-slate-400 rounded-full" title="Sincronizado"></div>
 					</div>
 				</div>
 				
 				<!-- Consejos rápidos -->
-				<div class="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+				<div class="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
 					<div class="flex items-start space-x-3">
-						<svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg class="w-5 h-5 text-slate-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 						</svg>
 						<div>
-							<p class="text-sm font-medium text-blue-700">Consejo</p>
-							<p class="text-xs text-gray-600 mt-1">Los cambios se reflejan automáticamente en la vista previa</p>
+							<p class="text-sm font-medium text-slate-700">Consejo</p>
+							<p class="text-xs text-slate-600 mt-1">Los cambios se reflejan automáticamente en la vista previa</p>
 						</div>
 					</div>
 				</div>
@@ -312,18 +309,18 @@
     <div class="bg-white w-full h-full {emailViewMode === 'desktop' ? 'max-w-7xl' : 'max-w-md'} max-h-screen mx-4 my-4 rounded-lg shadow-2xl overflow-hidden transition-all duration-300" on:click|stopPropagation>
       
       <!-- Header del Cliente de Correo -->
-      <div class="bg-gray-100 border-b border-gray-300 p-4 flex items-center justify-between">
+      <div class="bg-slate-100 border-b border-slate-300 p-4 flex items-center justify-between">
         <div class="flex items-center space-x-4">
-          <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+          <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
             <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
           </svg>
-          <h2 class="text-lg font-semibold text-gray-800">Vista en Correo Electrónico</h2>
+          <h2 class="text-lg font-semibold text-slate-800">Vista en Correo Electrónico</h2>
         </div>
         
         <!-- Botones Desktop/Móvil -->
         <div class="flex items-center space-x-2">
           <button 
-            class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 {emailViewMode === 'desktop' ? 'bg-blue-500 text-white shadow-lg' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'}"
+            class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 {emailViewMode === 'desktop' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-300'}"
             on:click={() => emailViewMode = 'desktop'}
           >
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -333,7 +330,7 @@
           </button>
           
           <button 
-            class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 {emailViewMode === 'mobile' ? 'bg-blue-500 text-white shadow-lg' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'}"
+            class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 {emailViewMode === 'mobile' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-300'}"
             on:click={() => emailViewMode = 'mobile'}
           >
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -343,7 +340,7 @@
           </button>
           
           <button 
-            class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-200 ml-2"
+            class="text-slate-500 hover:text-slate-700 p-2 rounded-full hover:bg-slate-200 ml-2"
             on:click={closeEmailSimulator}
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -358,10 +355,10 @@
         <div class="max-w-4xl mx-auto">
           
           <!-- Header del Email -->
-          <div class="bg-gray-50 border border-gray-200 rounded-t-lg p-4 mb-0">
+          <div class="bg-slate-50 border border-slate-200 rounded-t-lg p-4 mb-0">
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center shadow-sm">
                   <span class="text-white font-semibold text-sm">
                     {($signatureData.name || $signatureData.fullName || 'Usuario').charAt(0).toUpperCase()}
                   </span>
@@ -449,32 +446,32 @@
     gap: 1rem;
     @apply bg-white border border-gray-200;
     @apply transform hover:translate-x-1 hover:shadow-lg;
-    @apply hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-500 hover:border-blue-500;
+    @apply hover:bg-blue-50 hover:border-blue-400;
     backdrop-filter: blur(10px);
   }
   
   .step-item:hover .step-content h3 {
-    @apply text-white;
+    @apply text-blue-700;
   }
   
   .step-item:hover .step-content p {
-    @apply text-blue-50;
+    @apply text-blue-600;
   }
   
   .step-item.active {
-    @apply bg-gradient-to-r from-blue-600 to-purple-600 border-blue-600;
+    @apply bg-blue-600 border-blue-600;
     @apply shadow-xl transform translate-x-1;
     @apply ring-2 ring-blue-400;
   }
   
   .step-item.completed {
-    @apply bg-green-50 border-green-300;
+    @apply bg-blue-50 border-blue-300;
     @apply shadow-md;
-    @apply hover:bg-green-500 hover:border-green-600;
+    @apply hover:bg-blue-100 hover:border-blue-400;
   }
   
   .step-item.completed:hover .step-content h3 {
-    @apply text-white;
+    @apply text-blue-700;
   }
   
   .step-item.completed:hover .step-content p {
@@ -588,11 +585,11 @@
   }
 
   :global(::-webkit-scrollbar-thumb) {
-    background: linear-gradient(to bottom, rgb(59 130 246), rgb(147 51 234));
+    background: rgb(159 213 209);
     border-radius: 4px;
   }
 
   :global(::-webkit-scrollbar-thumb:hover) {
-    background: linear-gradient(to bottom, rgb(37 99 235), rgb(126 34 206));
+    background: rgb(126 201 196);
   }
 </style>

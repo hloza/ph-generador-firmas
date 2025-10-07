@@ -6,7 +6,7 @@
   <title>Página no encontrada - Generador de Firmas</title>
 </svelte:head>
 
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
   <div class="text-center p-8">
     <div class="mb-6">
       <svg class="w-16 h-16 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -2,17 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Paleta de colores */
+/* Paleta de colores - Esquema Formal Profesional */
 :root {
-  --color-background: #ffffff;
-  --color-foreground: #0f172a;
-  --color-primary: #3b82f6;
+  --color-background: #f8fafc;
+  --color-foreground: #1e293b;
+  --color-primary: #9FD5D1;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #64748b;
-  --color-accent: #f59e0b;
+  --color-secondary: #475569;
+  --color-accent: #7ec9c4;
   --color-muted: #f1f5f9;
   --color-muted-foreground: #64748b;
-  --color-border: #e2e8f0;
+  --color-border: #cbd5e1;
   --color-card: #ffffff;
   --color-card-foreground: #0f172a;
 }
@@ -100,7 +100,7 @@ body {
 .text-gray-700 { color: #374151; }
 .text-gray-800 { color: #1f2937; }
 .text-gray-900 { color: #111827; }
-.text-blue-600 { color: #2563eb; }
+.text-blue-600 { color: #9FD5D1; }
 .text-slate-400 { color: #94a3b8; }
 .text-slate-600 { color: #475569; }
 .text-slate-700 { color: #334155; }
@@ -213,7 +213,7 @@ body {
 .animate-pulse { animation: pulse 2s infinite; }
 
 /* Colores */
-.bg-blue-500 { background-color: #3b82f6; }
+.bg-blue-500 { background-color: #9FD5D1; }
 .bg-green-500 { background-color: #10b981; }
 .bg-purple-500 { background-color: #8b5cf6; }
 .text-white { color: #ffffff; }
@@ -231,15 +231,15 @@ body {
 .mb-2 { margin-bottom: 0.5rem; }
 
 /* Colores adicionales */
-.bg-blue-50 { background-color: #eff6ff; }
+.bg-blue-50 { background-color: #f0faf9; }
 .bg-green-50 { background-color: #f0fdf4; }
 .bg-purple-50 { background-color: #faf5ff; }
 .bg-gray-50 { background-color: #f9fafb; }
 .bg-gray-500 { background-color: #6b7280; }
-.border-blue-200 { border-color: #bfdbfe; }
+.border-blue-200 { border-color: #b3e5e0; }
 .border-green-200 { border-color: #bbf7d0; }
 .border-purple-200 { border-color: #e9d5ff; }
-.text-blue-800 { color: #1e40af; }
+.text-blue-800 { color: #2d6361; }
 .text-green-800 { color: #166534; }
 .text-purple-800 { color: #6b21a8; }
 
@@ -275,7 +275,7 @@ body {
   transition: all 0.3s ease;
   overflow: visible !important;
   border-radius: 16px;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: #f8fafc;
   padding: 50px 40px;
   display: flex;
   justify-content: center;
@@ -307,7 +307,7 @@ body {
   max-width: 375px;
   min-height: 450px;
   margin: 0 auto;
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: #1e293b;
   border: 2px solid #475569;
   border-radius: 20px;
   padding: 30px 20px;

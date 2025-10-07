@@ -123,7 +123,7 @@
   <meta name="description" content="Selecciona una plantilla profesional para tu firma de correo electrónico" />
   <style>
     .template-card:hover .top-shine {
-      background: linear-gradient(to right, transparent, rgba(6, 182, 212, 0.8), transparent) !important;
+      background: rgba(6, 182, 212, 0.3) !important;
     }
     .template-card:hover .hover-overlay {
       opacity: 1 !important;
@@ -155,14 +155,7 @@
 </svelte:head>
 
 <!-- Contenido principal -->
-<div class="relative gradient-bg">
-  <!-- Efectos de fondo sutiles -->
-  <div class="absolute inset-0 overflow-hidden pointer-events-none">
-    <!-- Orbes sutiles -->
-    <div class="absolute top-20 right-20 w-64 h-64 rounded-full blur-3xl animate-pulse opacity-10" style="background: var(--accent); animation-duration: 6s;"></div>
-    <div class="absolute bottom-20 left-20 w-48 h-48 rounded-full blur-3xl animate-pulse opacity-10" style="background: var(--secondary); animation-duration: 8s;"></div>
-  </div>
-
+<div class="relative" style="background: white;">
 <div class="px-4 py-1 relative z-10" class:animate-slideInUp={isLoaded}>
   <!-- Grid de plantillas -->  
   <div class="mb-2 relative">
@@ -179,15 +172,15 @@
           on:mouseenter={(e) => {
             if (selectedTemplateId !== template.id) {
               e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = '0 8px 20px rgba(59, 130, 246, 0.2)';
-              e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)';
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(159, 213, 209, 0.2)';
+              e.currentTarget.style.borderColor = 'rgba(159, 213, 209, 0.5)';
             }
           }}
           on:mouseleave={(e) => {
             if (selectedTemplateId === template.id) {
               e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.25)';
-              e.currentTarget.style.borderColor = 'rgb(59, 130, 246)';
+              e.currentTarget.style.boxShadow = '0 8px 25px rgba(159, 213, 209, 0.25)';
+              e.currentTarget.style.borderColor = 'rgb(159, 213, 209)';
             } else {
               e.currentTarget.style.transform = 'translateY(0)';
               e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
