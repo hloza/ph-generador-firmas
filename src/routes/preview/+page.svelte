@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Preview from '$lib/components/Preview.svelte';
+  import SignaturePreview from '$lib/components/SignaturePreview.svelte';
 </script>
 
 <svelte:head>
@@ -13,5 +13,5 @@
 </div>
 
 <div class="section-content">
-  <Preview />
+  <SignaturePreview />
 </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import ExportPanel from '$lib/components/ExportPanel.svelte';
-  import Preview from '$lib/components/Preview.svelte';
+  import SignaturePreview from '$lib/components/SignaturePreview.svelte';
 </script>
 
 <svelte:head>
@@ -24,7 +24,7 @@
     <div class="space-y-6">
       <div class="bg-gray-50 rounded-xl p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Vista Previa Final</h3>
-        <Preview />
+        <SignaturePreview />
       </div>
     </div>
   </div>

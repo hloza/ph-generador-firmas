@@ -114,3 +114,11 @@ export function markAllStepsAsCompleted() {
     return steps.map(step => ({ ...step, completed: true }));
   });
 }
+
+// Función para resetear todos los pasos (limpiar progreso)
+export function resetAllSteps() {
+  stepsStore.update(steps => {
+    return steps.map(step => ({ ...step, completed: false }));
+  });
+  currentStep.set('template');
+}

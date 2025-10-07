@@ -287,3 +287,53 @@ export function resetSignatureData() {
   }
   signatureData.set(initialSignatureData);
 }
+
+// Función para limpiar TODOS los datos (localStorage, sessionStorage, cache)
+export function clearAllAppData() {
+  if (!browser) return;
+  
+  try {
+    // 1. Limpiar localStorage
+    localStorage.clear();
+    
+    // 2. Limpiar sessionStorage
+    sessionStorage.clear();
+    
+    // 3. Limpiar cookies del dominio
+    document.cookie.split(';').forEach(cookie => {
+      const eqPos = cookie.indexOf('=');
+      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+    });
+    
+    // 4. Resetear el store a valores iniciales
+    signatureData.set(initialSignatureData);
+    
+    // 5. Limpiar cache del navegador (si está disponible)
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        names.forEach(name => {
+          caches.delete(name);
+        });
+      });
+    }
+    
+    console.log('✅ Todos los datos de la aplicación han sido limpiados');
+  } catch (error) {
+    console.error('Error al limpiar datos:', error);
+  }
+}
+
+// Función para prevenir navegación hacia atrás
+export function preventBackNavigation() {
+  if (!browser) return;
+  
+  // Agregar entrada al historial
+  window.history.pushState(null, '', window.location.href);
+  
+  // Prevenir el botón "atrás"
+  window.addEventListener('popstate', function(event) {
+    window.history.pushState(null, '', window.location.href);
+    showToast('info', '⚠️ No puedes volver atrás después de limpiar los datos');
+  });
+}

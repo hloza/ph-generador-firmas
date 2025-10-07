@@ -22,9 +22,9 @@
 
 
   const fontFamilies = [
-    { value: 'modern', label: 'Moderno', preview: 'font-sans', css: 'Arial, sans-serif' },
-    { value: 'classic', label: 'Clásico', preview: 'font-serif', css: 'Georgia, serif' },
-    { value: 'minimal', label: 'Minimalista', preview: 'font-mono', css: 'Courier, monospace' }
+    { value: 'modern', label: 'Moderno', preview: 'font-sans', css: 'Helvetica, Verdana, Arial, sans-serif' },
+    { value: 'classic', label: 'Clásico', preview: 'font-sans', css: 'Verdana, Geneva, Tahoma, sans-serif' },
+    { value: 'minimal', label: 'Minimalista', preview: 'font-mono', css: '"Courier New", Courier, monospace' }
   ];
 
   function updateSignatureData() {
@@ -62,17 +62,10 @@
 </svelte:head>
 
 <div class="max-w-4xl mx-auto">
-  <!-- Header -->
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-white mb-3">
-      🎨 Personalización de Diseño
-    </h1>
-  </div>
 
   <!-- Formulario -->
   <div class="max-w-2xl">
     <div class="bg-white border border-gray-300 rounded-lg p-8">
-      <h2 class="text-xl font-semibold text-gray-900 mb-6">Personalización de Diseño</h2>
       
       <div class="space-y-8">
         <!-- Colores -->
@@ -101,7 +94,7 @@
           <!-- Color de Acento -->
           <div>
             <div id="accent-color-label" class="block text-sm font-medium text-gray-700 mb-3">
-              Color de Acento
+              Color Secundario
             </div>
             <div class="grid grid-cols-5 gap-3" aria-labelledby="accent-color-label">
               {#each colorPresets as color}
@@ -158,7 +151,7 @@
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
         </svg>
-        Redes Sociales
+        Imagen
       </button>
 
       <button

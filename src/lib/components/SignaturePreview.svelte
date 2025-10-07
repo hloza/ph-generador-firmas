@@ -2,6 +2,7 @@
   import { signatureData } from '../stores/signature.js';
   import { templates } from '../data/templates.js';
   import type { Template } from '../stores/signature.js';
+  import { placeholderData, getValueOrPlaceholder, shouldShowSection, hasUserData } from '../data/placeholders.js';
 
   $: selectedTemplateId = $signatureData.templateId;
   $: selectedTemplate = selectedTemplateId ? templates.find((t: Template) => t.id === selectedTemplateId) : null;
@@ -29,40 +30,65 @@
     
     const templateId = selectedTemplateId;
     const isMobile = viewMode === 'mobile';
-    const name = $signatureData.name || $signatureData.fullName || 'Tu nombre';
-    const title = $signatureData.title || $signatureData.position || 'Tu título profesional';
-    const company = $signatureData.company || 'Tu empresa';
-    const department = $signatureData.department ? ` - ${$signatureData.department}` : '';
-    const email = $signatureData.email || 'tu.email@empresa.com';
-    const phone = $signatureData.phone || '+34 xxx xxx xxx';
-    const website = $signatureData.website || '';
-    const address = $signatureData.address || '';
     
-    // Redes sociales
-    const linkedin = $signatureData.linkedin || '';
-    const twitter = $signatureData.twitter || '';
-    const github = $signatureData.github || '';
-    const instagram = $signatureData.instagram || '';
+    // Determinar si mostrar placeholders (solo si no hay datos de usuario)
+    const showPlaceholders = !hasUserData($signatureData);
+    
+    // Obtener valores reales o placeholders
+    const name = getValueOrPlaceholder($signatureData.name || $signatureData.fullName, placeholderData.name, showPlaceholders);
+    const title = getValueOrPlaceholder($signatureData.title || $signatureData.position, placeholderData.title, showPlaceholders);
+    const company = getValueOrPlaceholder($signatureData.company, placeholderData.company, showPlaceholders);
+    const department = $signatureData.department 
+      ? ` - ${$signatureData.department}` 
+      : (showPlaceholders ? ` - ${placeholderData.department}` : '');
+    const email = getValueOrPlaceholder($signatureData.email, placeholderData.email, showPlaceholders);
+    const phone = getValueOrPlaceholder($signatureData.phone, placeholderData.phone, showPlaceholders);
+    const website = getValueOrPlaceholder($signatureData.website, placeholderData.website, showPlaceholders);
+    const address = getValueOrPlaceholder($signatureData.address, placeholderData.address, showPlaceholders);
+    
+    // Redes sociales (solo mostrar si hay datos reales o si es placeholder)
+    const linkedin = shouldShowSection($signatureData.linkedin, showPlaceholders) 
+      ? ($signatureData.linkedin || (showPlaceholders ? placeholderData.linkedin : ''))
+      : '';
+    const twitter = shouldShowSection($signatureData.twitter, showPlaceholders)
+      ? ($signatureData.twitter || (showPlaceholders ? placeholderData.twitter : ''))
+      : '';
+    const github = shouldShowSection($signatureData.github, showPlaceholders)
+      ? ($signatureData.github || (showPlaceholders ? placeholderData.github : ''))
+      : '';
+    const instagram = shouldShowSection($signatureData.instagram, showPlaceholders)
+      ? ($signatureData.instagram || (showPlaceholders ? placeholderData.instagram : ''))
+      : '';
     
     // Valores de personalización
     const primaryColor = $signatureData.primaryColor || '#3b82f6';
     const accentColor = $signatureData.accentColor || '#8b5cf6';
     const fontFamily = $signatureData.fontFamily || 'modern';
     
-    // Mapeo de familias de fuente
+    // Indicador visual de placeholder (opacidad y estilo)
+    const placeholderStyle = showPlaceholders ? 'opacity: 0.7; font-style: italic;' : '';
+    
+    // Mapeo de familias de fuente (100% compatibles con clientes de email)
     const fontFamilyStyles = {
-      modern: 'font-family: Arial, sans-serif;',
-      classic: 'font-family: Georgia, serif;',
-      minimal: 'font-family: Courier, monospace;'
+      modern: 'font-family: Helvetica, Verdana, Arial, sans-serif;',
+      classic: 'font-family: Verdana, Geneva, Tahoma, sans-serif;',
+      minimal: "font-family: 'Courier New', Courier, monospace;"
     };
     
     const fontStyle = fontFamilyStyles[fontFamily as keyof typeof fontFamilyStyles];
     
     // Función para generar imagen de perfil
     const getImageHtml = (forDesktop = false) => {
-      if (!$signatureData.image?.url) return '';
+      // Usar imagen del usuario o placeholder
+      const imageUrl = $signatureData.image?.url || (showPlaceholders ? placeholderData.imageUrl : '');
       
-      const imageData = $signatureData.image;
+      if (!imageUrl) return '';
+      
+      const imageData = $signatureData.image || { 
+        url: imageUrl, 
+        size: 'medium' as const, 
+        shape: 'circle' as const 
+      };
       const size = imageData.size || 'medium';
       const shape = imageData.shape || 'circle';
       
@@ -87,9 +113,9 @@
       // En móvil, la imagen debe ir arriba de todo y centrada
       if (isMobile) {
         return `
-          <div style="text-align: center; margin-bottom: 16px; width: 100%; padding: 0;">
+          <div style="text-align: center; margin-bottom: 16px; width: 100%; padding: 0; ${showPlaceholders && !$signatureData.image?.url ? placeholderStyle : ''}">
             <img 
-              src="${imageData.url}" 
+              src="${imageUrl}" 
               alt="Foto de perfil" 
               style="
                 width: ${imageSize}; 
@@ -106,21 +132,20 @@
         `;
       }
       
-      // En desktop, usar un contenedor más robusto para evitar recortes
+      // En desktop, la imagen siempre a la izquierda
       return `
         <div style="
           display: flex; 
           align-items: center; 
           justify-content: center;
           flex-shrink: 0;
-          margin-right: ${forDesktop ? '0' : '16px'}; 
-          margin-bottom: ${forDesktop ? '16px' : '0'};
+          margin-right: 16px;
+          margin-bottom: 0;
           padding: 4px;
-          width: ${forDesktop ? 'auto' : `calc(${imageSize} + 12px)`};
-          height: ${forDesktop ? 'auto' : `calc(${imageSize} + 12px)`};
+          ${showPlaceholders && !$signatureData.image?.url ? placeholderStyle : ''}
         ">
           <img 
-            src="${imageData.url}" 
+            src="${imageUrl}" 
             alt="Foto de perfil" 
             style="
               width: ${imageSize}; 
@@ -182,20 +207,21 @@
     // Plantillas con diseños completamente únicos
     const previews = {
       // MINIMAL CLEAN - Diseño ultra limpio con imagen a la izquierda en desktop
+      // MINIMAL CLEAN - Diseño minimalista y limpio
       'minimal-1': `
-        <div style="${fontStyle} max-width: 650px; width: 100%; ${isMobile ? 'text-align: center; padding: 20px;' : 'display: flex; align-items: flex-start; gap: 20px; padding: 16px;'}">
+        <div style="${fontStyle} max-width: 650px; width: 100%; ${isMobile ? 'text-align: center; padding: 20px;' : 'display: flex; align-items: center; gap: 20px; padding: 16px;'}">
           ${isMobile ? getImageHtml() : ''}
-          ${!isMobile && $signatureData.image?.url ? getImageHtml(true) : ''}
+          ${!isMobile ? getImageHtml(true) : ''}
           <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
-            <h3 style="color: ${primaryColor}; margin: 0 0 4px 0; font-size: ${isMobile ? '14px' : '16px'}; font-weight: 600; line-height: 1.2;">${name}</h3>
-            <p style="color: ${accentColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '11px' : '12px'}; font-weight: 500;">${title}</p>
-            ${company !== 'Tu empresa' ? `<p style="color: #666; margin: 0 0 6px 0; font-size: ${isMobile ? '10px' : '11px'}; font-style: italic;">${company}${department}</p>` : ''}
+            <h3 style="color: ${primaryColor}; margin: 0 0 4px 0; font-size: ${isMobile ? '14px' : '16px'}; font-weight: 600; line-height: 1.2; ${placeholderStyle}">${name}</h3>
+            <p style="color: ${accentColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '11px' : '12px'}; font-weight: 500; ${placeholderStyle}">${title}</p>
+            ${shouldShowSection($signatureData.company, showPlaceholders) ? `<p style="color: #666; margin: 0 0 6px 0; font-size: ${isMobile ? '10px' : '11px'}; font-style: italic; ${placeholderStyle}">${company}${department}</p>` : ''}
             
             <div style="margin-top: 6px; font-size: ${isMobile ? '9px' : '10px'}; color: #555; line-height: 1.3;">
-              ${email !== 'tu.email@empresa.com' ? `<div style="margin-bottom: 2px;">${email}</div>` : ''}
-              ${phone !== '+34 xxx xxx xxx' ? `<div style="margin-bottom: 2px;">${phone}</div>` : ''}
-              ${website ? `<div style="margin-bottom: 2px;">${website}</div>` : ''}
-              ${address ? `<div>${address}</div>` : ''}
+              ${shouldShowSection($signatureData.email, showPlaceholders) ? `<div style="margin-bottom: 2px; ${placeholderStyle}">${email}</div>` : ''}
+              ${shouldShowSection($signatureData.phone, showPlaceholders) ? `<div style="margin-bottom: 2px; ${placeholderStyle}">${phone}</div>` : ''}
+              ${shouldShowSection($signatureData.website, showPlaceholders) ? `<div style="margin-bottom: 2px; ${placeholderStyle}">${website}</div>` : ''}
+              ${shouldShowSection($signatureData.address, showPlaceholders) ? `<div style="${placeholderStyle}">${address}</div>` : ''}
             </div>
             
             ${getSocialIcons()}
@@ -205,20 +231,20 @@
 
       // MINIMAL LINES - Con líneas separadoras elegantes
       'minimal-2': `
-        <div style="${fontStyle} max-width: 670px; width: 100%; ${isMobile ? 'text-align: center; padding: 20px;' : 'display: flex; align-items: flex-start; gap: 20px; padding: 16px;'}">
+        <div style="${fontStyle} max-width: 670px; width: 100%; ${isMobile ? 'text-align: center; padding: 20px;' : 'display: flex; align-items: center; gap: 20px; padding: 16px;'}">
           ${isMobile ? getImageHtml() : ''}
-          ${!isMobile && $signatureData.image?.url ? getImageHtml(true) : ''}
+          ${!isMobile ? getImageHtml(true) : ''}
           <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
-            <h3 style="color: ${primaryColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '15px' : '17px'}; font-weight: 300; letter-spacing: 0.5px;">${name}</h3>
+            <h3 style="color: ${primaryColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '15px' : '17px'}; font-weight: 300; letter-spacing: 0.5px; ${placeholderStyle}">${name}</h3>
             <div style="width: 20px; height: 1px; background: ${accentColor}; margin: 0 ${isMobile ? 'auto' : '0'} 4px ${isMobile ? 'auto' : '0'};"></div>
-            <p style="color: ${accentColor}; margin: 0 0 4px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">${title}</p>
-            ${company !== 'Tu empresa' ? `<p style="color: #777; margin: 0 0 6px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 400;">${company}${department}</p>` : ''}
+            <p style="color: ${accentColor}; margin: 0 0 4px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; ${placeholderStyle}">${title}</p>
+            ${shouldShowSection($signatureData.company, showPlaceholders) ? `<p style="color: #777; margin: 0 0 6px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 400; ${placeholderStyle}">${company}${department}</p>` : ''}
             
             <div style="border-top: 1px solid #e0e0e0; padding-top: 4px; margin-top: 4px; font-size: ${isMobile ? '9px' : '10px'}; color: #666;">
-              ${email !== 'tu.email@empresa.com' ? `<div style="margin-bottom: 2px; display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/fluency/48/mail--v1.png" alt="Email" style="width: 10px; height: 10px;" /> ${email}</div>` : ''}
-              ${phone !== '+34 xxx xxx xxx' ? `<div style="margin-bottom: 2px; display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/color/48/phone.png" alt="Phone" style="width: 10px; height: 10px;" /> ${phone}</div>` : ''}
-              ${website ? `<div style="margin-bottom: 2px; display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/color/48/internet--v1.png" alt="Website" style="width: 10px; height: 10px;" /> ${website}</div>` : ''}
-              ${address ? `<div style="display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/external-icongeek26-flat-icongeek26/64/external-place-essentials-icongeek26-flat-icongeek26.png" alt="Address" style="width: 10px; height: 10px;" /> ${address}</div>` : ''}
+              ${shouldShowSection($signatureData.email, showPlaceholders) ? `<div style="margin-bottom: 2px; display: flex; align-items: center; gap: 4px; ${placeholderStyle}"><img src="https://img.icons8.com/fluency/48/mail--v1.png" alt="Email" style="width: 10px; height: 10px;" /> ${email}</div>` : ''}
+              ${shouldShowSection($signatureData.phone, showPlaceholders) ? `<div style="margin-bottom: 2px; display: flex; align-items: center; gap: 4px; ${placeholderStyle}"><img src="https://img.icons8.com/color/48/phone.png" alt="Phone" style="width: 10px; height: 10px;" /> ${phone}</div>` : ''}
+              ${shouldShowSection($signatureData.website, showPlaceholders) ? `<div style="margin-bottom: 2px; display: flex; align-items: center; gap: 4px; ${placeholderStyle}"><img src="https://img.icons8.com/color/48/internet--v1.png" alt="Website" style="width: 10px; height: 10px;" /> ${website}</div>` : ''}
+              ${shouldShowSection($signatureData.address, showPlaceholders) ? `<div style="display: flex; align-items: center; gap: 4px; ${placeholderStyle}"><img src="https://img.icons8.com/external-icongeek26-flat-icongeek26/64/external-place-essentials-icongeek26-flat-icongeek26.png" alt="Address" style="width: 10px; height: 10px;" /> ${address}</div>` : ''}
             </div>
             
             ${getSocialIcons()}
@@ -228,19 +254,19 @@
 
       // PROFESSIONAL EXECUTIVE - Diseño ejecutivo con jerarquía clara
       'professional-1': `
-        <div style="${fontStyle} max-width: 690px; width: 100%; ${isMobile ? 'padding: 20px; text-align: center;' : 'display: flex; align-items: flex-start; gap: 24px; padding: 18px; border-left: 4px solid ' + primaryColor + ';'}">
+        <div style="${fontStyle} max-width: 690px; width: 100%; ${isMobile ? 'padding: 20px; text-align: center;' : 'display: flex; align-items: center; gap: 24px; padding: 18px; border-left: 4px solid ' + primaryColor + ';'}">
           ${isMobile ? getImageHtml() : ''}
-          ${!isMobile && $signatureData.image?.url ? getImageHtml(true) : ''}
+          ${!isMobile ? getImageHtml(true) : ''}
           <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
-            <h3 style="color: ${primaryColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '16px' : '18px'}; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">${name}</h3>
-            <p style="color: ${accentColor}; margin: 0 0 2px 0; font-size: ${isMobile ? '11px' : '12px'}; font-weight: 600; letter-spacing: 0.5px;">${title}</p>
-            ${company !== 'Tu empresa' ? `<p style="color: #333; margin: 0 0 8px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 500; border-bottom: 1px solid #ddd; padding-bottom: 4px;">${company}${department}</p>` : ''}
+            <h3 style="color: ${primaryColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '16px' : '18px'}; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; ${placeholderStyle}">${name}</h3>
+            <p style="color: ${accentColor}; margin: 0 0 2px 0; font-size: ${isMobile ? '11px' : '12px'}; font-weight: 600; letter-spacing: 0.5px; ${placeholderStyle}">${title}</p>
+            ${shouldShowSection($signatureData.company, showPlaceholders) ? `<p style="color: #333; margin: 0 0 8px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 500; border-bottom: 1px solid #ddd; padding-bottom: 4px; ${placeholderStyle}">${company}${department}</p>` : ''}
             
             <table style="width: 100%; font-size: ${isMobile ? '9px' : '10px'}; color: #555;">
-              ${email !== 'tu.email@empresa.com' ? `<tr><td style="padding: 1px 4px 1px 0; font-weight: 600; color: ${primaryColor};">EMAIL:</td><td style="padding: 1px 0;">${email}</td></tr>` : ''}
-              ${phone !== '+34 xxx xxx xxx' ? `<tr><td style="padding: 1px 4px 1px 0; font-weight: 600; color: ${primaryColor};">PHONE:</td><td style="padding: 1px 0;">${phone}</td></tr>` : ''}
-              ${website ? `<tr><td style="padding: 1px 4px 1px 0; font-weight: 600; color: ${primaryColor};">WEB:</td><td style="padding: 1px 0;">${website}</td></tr>` : ''}
-              ${address ? `<tr><td style="padding: 1px 4px 1px 0; font-weight: 600; color: ${primaryColor};">ADDRESS:</td><td style="padding: 1px 0;">${address}</td></tr>` : ''}
+              ${shouldShowSection($signatureData.email, showPlaceholders) ? `<tr><td style="padding: 1px 4px 1px 0; font-weight: 600; color: ${primaryColor};">EMAIL:</td><td style="padding: 1px 0; ${placeholderStyle}">${email}</td></tr>` : ''}
+              ${shouldShowSection($signatureData.phone, showPlaceholders) ? `<tr><td style="padding: 1px 4px 1px 0; font-weight: 600; color: ${primaryColor};">PHONE:</td><td style="padding: 1px 0; ${placeholderStyle}">${phone}</td></tr>` : ''}
+              ${shouldShowSection($signatureData.website, showPlaceholders) ? `<tr><td style="padding: 1px 4px 1px 0; font-weight: 600; color: ${primaryColor};">WEB:</td><td style="padding: 1px 0; ${placeholderStyle}">${website}</td></tr>` : ''}
+              ${shouldShowSection($signatureData.address, showPlaceholders) ? `<tr><td style="padding: 1px 4px 1px 0; font-weight: 600; color: ${primaryColor};">ADDRESS:</td><td style="padding: 1px 0; ${placeholderStyle}">${address}</td></tr>` : ''}
             </table>
             
             ${getSocialIcons()}
@@ -250,19 +276,19 @@
 
       // PROFESSIONAL MODERN - Moderno con estructura equilibrada
       'professional-2': `
-        <div style="${fontStyle} max-width: 710px; width: 100%; ${isMobile ? 'padding: 20px; text-align: center;' : 'display: flex; align-items: flex-start; gap: 22px; background: linear-gradient(135deg, ' + primaryColor + '08, ' + accentColor + '05); padding: 20px; border-radius: 10px;'}">
+        <div style="${fontStyle} max-width: 710px; width: 100%; ${isMobile ? 'padding: 20px; text-align: center;' : 'display: flex; align-items: center; gap: 22px; background: linear-gradient(135deg, ' + primaryColor + '08, ' + accentColor + '05); padding: 20px; border-radius: 10px;'}">
           ${isMobile ? getImageHtml() : ''}
-          ${!isMobile && $signatureData.image?.url ? getImageHtml(true) : ''}
+          ${!isMobile ? getImageHtml(true) : ''}
           <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
-            <h3 style="color: ${primaryColor}; margin: 0 0 4px 0; font-size: ${isMobile ? '15px' : '17px'}; font-weight: 600; letter-spacing: 0.3px;">${name}</h3>
-            <div style="background: ${accentColor}; color: white; display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: ${isMobile ? '9px' : '10px'}; font-weight: 600; margin-bottom: 6px;">${title.toUpperCase()}</div>
-            ${company !== 'Tu empresa' ? `<p style="color: #444; margin: 0 0 8px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 500;">${company}${department}</p>` : ''}
+            <h3 style="color: ${primaryColor}; margin: 0 0 4px 0; font-size: ${isMobile ? '15px' : '17px'}; font-weight: 600; letter-spacing: 0.3px; ${placeholderStyle}">${name}</h3>
+            <div style="background: ${accentColor}; color: white; display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: ${isMobile ? '9px' : '10px'}; font-weight: 600; margin-bottom: 6px; ${placeholderStyle}">${title.toUpperCase()}</div>
+            ${shouldShowSection($signatureData.company, showPlaceholders) ? `<p style="color: #444; margin: 0 0 8px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 500; ${placeholderStyle}">${company}${department}</p>` : ''}
             
             <div style="background: white; padding: 10px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-size: ${isMobile ? '9px' : '10px'}; color: #666;">
-              ${email !== 'tu.email@empresa.com' ? `<div style="margin-bottom: 3px; display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/fluency/48/mail--v1.png" alt="Email" style="width: 12px; height: 12px;" /> ${email}</div>` : ''}
-              ${phone !== '+34 xxx xxx xxx' ? `<div style="margin-bottom: 3px; display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/color/48/phone.png" alt="Phone" style="width: 12px; height: 12px;" /> ${phone}</div>` : ''}
-              ${website ? `<div style="margin-bottom: 3px; display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/color/48/internet--v1.png" alt="Website" style="width: 12px; height: 12px;" /> ${website}</div>` : ''}
-              ${address ? `<div style="display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/external-icongeek26-flat-icongeek26/64/external-place-essentials-icongeek26-flat-icongeek26.png" alt="Address" style="width: 12px; height: 12px;" /> ${address}</div>` : ''}
+              ${shouldShowSection($signatureData.email, showPlaceholders) ? `<div style="margin-bottom: 3px; display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/fluency/48/mail--v1.png" alt="Email" style="width: 12px; height: 12px;" /> <span style="${placeholderStyle}">${email}</span></div>` : ''}
+              ${shouldShowSection($signatureData.phone, showPlaceholders) ? `<div style="margin-bottom: 3px; display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/color/48/phone.png" alt="Phone" style="width: 12px; height: 12px;" /> <span style="${placeholderStyle}">${phone}</span></div>` : ''}
+              ${shouldShowSection($signatureData.website, showPlaceholders) ? `<div style="margin-bottom: 3px; display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/color/48/internet--v1.png" alt="Website" style="width: 12px; height: 12px;" /> <span style="${placeholderStyle}">${website}</span></div>` : ''}
+              ${shouldShowSection($signatureData.address, showPlaceholders) ? `<div style="display: flex; align-items: center; gap: 4px;"><img src="https://img.icons8.com/external-icongeek26-flat-icongeek26/64/external-place-essentials-icongeek26-flat-icongeek26.png" alt="Address" style="width: 12px; height: 12px;" /> <span style="${placeholderStyle}">${address}</span></div>` : ''}
             </div>
             
             ${getSocialIcons()}
@@ -272,19 +298,19 @@
 
       // CREATIVE BOLD - Colores vibrantes y diseño dinámico
       'creative-1': `
-        <div style="${fontStyle} max-width: 730px; width: 100%; ${isMobile ? 'padding: 24px; text-align: center;' : 'display: flex; align-items: flex-start; gap: 24px; background: linear-gradient(45deg, ' + primaryColor + '15, ' + accentColor + '15); padding: 24px; border-radius: 14px; border: 2px solid ' + primaryColor + '30;'}">
+        <div style="${fontStyle} max-width: 730px; width: 100%; ${isMobile ? 'padding: 24px; text-align: center;' : 'display: flex; align-items: center; gap: 24px; background: linear-gradient(45deg, ' + primaryColor + '15, ' + accentColor + '15); padding: 24px; border-radius: 14px; border: 2px solid ' + primaryColor + '30;'}">
           ${isMobile ? getImageHtml() : ''}
-          ${!isMobile && $signatureData.image?.url ? getImageHtml(true) : ''}
+          ${!isMobile ? getImageHtml(true) : ''}
           <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
-            <h3 style="background: linear-gradient(45deg, ${primaryColor}, ${accentColor}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0 0 6px 0; font-size: ${isMobile ? '18px' : '20px'}; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">${name}</h3>
-            <div style="background: linear-gradient(135deg, ${accentColor}, ${primaryColor}); color: white; display: inline-block; padding: 4px 12px; border-radius: 18px; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 700; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">${title}</div>
-            ${company !== 'Tu empresa' ? `<p style="color: #333; margin: 0 0 10px 0; font-size: ${isMobile ? '11px' : '12px'}; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">${company}${department}</p>` : ''}
+            <h3 style="background: linear-gradient(45deg, ${primaryColor}, ${accentColor}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0 0 6px 0; font-size: ${isMobile ? '18px' : '20px'}; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); ${placeholderStyle}">${name}</h3>
+            <div style="background: linear-gradient(135deg, ${accentColor}, ${primaryColor}); color: white; display: inline-block; padding: 4px 12px; border-radius: 18px; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 700; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); ${placeholderStyle}">${title}</div>
+            ${shouldShowSection($signatureData.company, showPlaceholders) ? `<p style="color: #333; margin: 0 0 10px 0; font-size: ${isMobile ? '11px' : '12px'}; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; ${placeholderStyle}">${company}${department}</p>` : ''}
             
             <div style="background: rgba(255,255,255,0.9); padding: 12px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); font-size: ${isMobile ? '9px' : '10px'}; color: #555;">
-              ${email !== 'tu.email@empresa.com' ? `<div style="margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><span style="background: ${primaryColor}; color: white; padding: 3px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;"><img src="https://img.icons8.com/fluency/48/mail--v1.png" alt="Email" style="width: 8px; height: 8px; filter: brightness(0) invert(1);" /></span> ${email}</div>` : ''}
-              ${phone !== '+34 xxx xxx xxx' ? `<div style="margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><span style="background: ${accentColor}; color: white; padding: 3px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;"><img src="https://img.icons8.com/color/48/phone.png" alt="Phone" style="width: 8px; height: 8px; filter: brightness(0) invert(1);" /></span> ${phone}</div>` : ''}
-              ${website ? `<div style="margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><span style="background: ${primaryColor}; color: white; padding: 3px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;"><img src="https://img.icons8.com/color/48/internet--v1.png" alt="Website" style="width: 8px; height: 8px; filter: brightness(0) invert(1);" /></span> ${website}</div>` : ''}
-              ${address ? `<div style="display: flex; align-items: center; gap: 6px;"><span style="background: ${accentColor}; color: white; padding: 3px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;"><img src="https://img.icons8.com/external-icongeek26-flat-icongeek26/64/external-place-essentials-icongeek26-flat-icongeek26.png" alt="Address" style="width: 8px; height: 8px; filter: brightness(0) invert(1);" /></span> ${address}</div>` : ''}
+              ${shouldShowSection($signatureData.email, showPlaceholders) ? `<div style="margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><span style="background: ${primaryColor}; color: white; padding: 3px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;"><img src="https://img.icons8.com/fluency/48/mail--v1.png" alt="Email" style="width: 8px; height: 8px; filter: brightness(0) invert(1);" /></span> <span style="${placeholderStyle}">${email}</span></div>` : ''}
+              ${shouldShowSection($signatureData.phone, showPlaceholders) ? `<div style="margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><span style="background: ${accentColor}; color: white; padding: 3px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;"><img src="https://img.icons8.com/color/48/phone.png" alt="Phone" style="width: 8px; height: 8px; filter: brightness(0) invert(1);" /></span> <span style="${placeholderStyle}">${phone}</span></div>` : ''}
+              ${shouldShowSection($signatureData.website, showPlaceholders) ? `<div style="margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><span style="background: ${primaryColor}; color: white; padding: 3px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;"><img src="https://img.icons8.com/color/48/internet--v1.png" alt="Website" style="width: 8px; height: 8px; filter: brightness(0) invert(1);" /></span> <span style="${placeholderStyle}">${website}</span></div>` : ''}
+              ${shouldShowSection($signatureData.address, showPlaceholders) ? `<div style="display: flex; align-items: center; gap: 6px;"><span style="background: ${accentColor}; color: white; padding: 3px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;"><img src="https://img.icons8.com/external-icongeek26-flat-icongeek26/64/external-place-essentials-icongeek26-flat-icongeek26.png" alt="Address" style="width: 8px; height: 8px; filter: brightness(0) invert(1);" /></span> <span style="${placeholderStyle}">${address}</span></div>` : ''}
             </div>
             
             ${getSocialIcons()}
@@ -294,20 +320,20 @@
 
       // CORPORATE PREMIUM - Diseño institucional de alta gama
       'corporate-1': `
-        <div style="${fontStyle} max-width: 750px; width: 100%; ${isMobile ? 'padding: 22px; text-align: center;' : 'display: flex; align-items: flex-start; gap: 26px; background: #f8f9fa; border: 1px solid #e9ecef; border-left: 4px solid ' + primaryColor + '; padding: 24px;'}">
+        <div style="${fontStyle} max-width: 750px; width: 100%; ${isMobile ? 'padding: 22px; text-align: center;' : 'display: flex; align-items: center; gap: 26px; background: #f8f9fa; border: 1px solid #e9ecef; border-left: 4px solid ' + primaryColor + '; padding: 24px;'}">
           ${isMobile ? getImageHtml() : ''}
-          ${!isMobile && $signatureData.image?.url ? getImageHtml(true) : ''}
+          ${!isMobile ? getImageHtml(true) : ''}
           <div style="${isMobile ? '' : 'flex: 1; min-width: 0;'}">
-            <h3 style="color: ${primaryColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '16px' : '18px'}; font-weight: 400; letter-spacing: 0.5px; font-family: Georgia, serif;">${name}</h3>
+            <h3 style="color: ${primaryColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '16px' : '18px'}; font-weight: 400; letter-spacing: 0.5px; font-family: Verdana, Geneva, Tahoma, sans-serif; ${placeholderStyle}">${name}</h3>
             <div style="width: 40px; height: 2px; background: linear-gradient(to right, ${primaryColor}, ${accentColor}); margin: 0 ${isMobile ? 'auto' : '0'} 6px ${isMobile ? 'auto' : '0'};"></div>
-            <p style="color: ${accentColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '12px' : '13px'}; font-weight: 600; font-style: italic;">${title}</p>
-            ${company !== 'Tu empresa' ? `<p style="color: #666; margin: 0 0 8px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 500; font-family: Georgia, serif;">${company}${department}</p>` : ''}
+            <p style="color: ${accentColor}; margin: 0 0 3px 0; font-size: ${isMobile ? '12px' : '13px'}; font-weight: 600; font-style: italic; ${placeholderStyle}">${title}</p>
+            ${shouldShowSection($signatureData.company, showPlaceholders) ? `<p style="color: #666; margin: 0 0 8px 0; font-size: ${isMobile ? '10px' : '11px'}; font-weight: 500; font-family: Verdana, Geneva, Tahoma, sans-serif; ${placeholderStyle}">${company}${department}</p>` : ''}
             
-            <div style="border-top: 1px solid ${primaryColor}30; border-bottom: 1px solid ${primaryColor}30; padding: 8px 0; margin: 8px 0; font-size: ${isMobile ? '9px' : '10px'}; color: #555; font-family: Georgia, serif;">
-              ${email !== 'tu.email@empresa.com' ? `<div style="margin-bottom: 3px; text-align: ${isMobile ? 'center' : 'left'};">${email}</div>` : ''}
-              ${phone !== '+34 xxx xxx xxx' ? `<div style="margin-bottom: 3px; text-align: ${isMobile ? 'center' : 'left'};">${phone}</div>` : ''}
-              ${website ? `<div style="margin-bottom: 3px; text-align: ${isMobile ? 'center' : 'left'};">${website}</div>` : ''}
-              ${address ? `<div style="text-align: ${isMobile ? 'center' : 'left'};">${address}</div>` : ''}
+            <div style="border-top: 1px solid ${primaryColor}30; border-bottom: 1px solid ${primaryColor}30; padding: 8px 0; margin: 8px 0; font-size: ${isMobile ? '9px' : '10px'}; color: #555; font-family: Verdana, Geneva, Tahoma, sans-serif;">
+              ${shouldShowSection($signatureData.email, showPlaceholders) ? `<div style="margin-bottom: 3px; text-align: ${isMobile ? 'center' : 'left'}; ${placeholderStyle}">${email}</div>` : ''}
+              ${shouldShowSection($signatureData.phone, showPlaceholders) ? `<div style="margin-bottom: 3px; text-align: ${isMobile ? 'center' : 'left'}; ${placeholderStyle}">${phone}</div>` : ''}
+              ${shouldShowSection($signatureData.website, showPlaceholders) ? `<div style="margin-bottom: 3px; text-align: ${isMobile ? 'center' : 'left'}; ${placeholderStyle}">${website}</div>` : ''}
+              ${shouldShowSection($signatureData.address, showPlaceholders) ? `<div style="text-align: ${isMobile ? 'center' : 'left'}; ${placeholderStyle}">${address}</div>` : ''}
             </div>
             
             ${getSocialIcons()}
@@ -324,54 +350,10 @@
   {#if selectedTemplate}
     <!-- Vista previa con plantilla seleccionada -->
     <div class="space-y-6">
-      <!-- Header del preview -->
-      <div class="text-center space-y-4">
-        <div class="inline-flex items-center space-x-3 bg-gradient-to-r from-emerald-500/20 to-green-500/20 border border-emerald-500/30 rounded-full px-4 py-2 backdrop-blur-sm">
-          <div class="w-3 h-3 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-500/50"></div>
-          <span class="text-emerald-300 font-bold text-sm">Vista Previa</span>
-        </div>
-        
-        <!-- Controles de vista responsiva -->
-        <div class="flex justify-center space-x-2">
-          <button 
-            class="flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 {viewMode === 'desktop' ? 'bg-blue-500 text-white shadow-lg' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}"
-            on:click={() => viewMode = 'desktop'}
-          >
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H9.2l-.9 2H9.2l.771-2z" clip-rule="evenodd"></path>
-            </svg>
-            <span class="text-sm font-medium">Escritorio</span>
-          </button>
-          
-          <button 
-            class="flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 {viewMode === 'mobile' ? 'bg-blue-500 text-white shadow-lg' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}"
-            on:click={() => viewMode = 'mobile'}
-          >
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v10a1 1 0 01-1 1H7a1 1 0 01-1-1V4zm2 12a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-            </svg>
-            <span class="text-sm font-medium">Móvil</span>
-          </button>
-        </div>
-
-      </div>
-
       <!-- Simulación de email compacta -->
       <div class="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
         <!-- Header del email simulado compacto -->
         <div class="flex items-center justify-between mb-3 pb-2 border-b border-white/10">
-          <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center">
-              <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
-                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
-              </svg>
-            </div>
-            <div>
-              <p class="text-white font-bold text-xs">Nuevo Email</p>
-              <p class="text-slate-400 text-xs">Así se verá tu firma</p>
-            </div>
-          </div>
           <div class="flex space-x-1">
             <div class="w-2 h-2 bg-red-500 rounded-full"></div>
             <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
@@ -379,14 +361,6 @@
           </div>
         </div>
 
-        <!-- Contenido del email compacto -->
-        <div class="mb-3">
-          <div class="text-slate-300 text-xs">
-            <p class="mb-1">Hola equipo,</p>
-            <p class="mb-1">Espero que tengan un excelente día. Adjunto encontrarán el reporte solicitado.</p>
-            <p class="mb-2">Saludos cordiales,</p>
-          </div>
-        </div>
 
         <!-- Línea separadora -->
         <div class="border-t border-slate-700 mb-3"></div>

@@ -14,39 +14,19 @@
     }
   });
 
-  // 1. Copiar HTML de la firma (incluyendo imagen embebida)
+  // 1. Copiar HTML de la firma (con URL de imagen directa)
   async function copyHTML() {
     try {
       isProcessing = true;
-      showToast('info', '🔄 Preparando HTML con imagen...');
+      showToast('info', '🔄 Preparando HTML...');
       
-      // Crear una copia de los datos para incluir la imagen
-      const dataWithImage = { ...$signatureData };
-      
-      let html = generateSignatureHTML(dataWithImage);
-      
-      // Si hay imagen, convertirla a base64 e incluirla en el HTML
-      if ($signatureData.image?.url && !$signatureData.image.url.startsWith('data:')) {
-        try {
-          const response = await fetch($signatureData.image.url);
-          const blob = await response.blob();
-          const base64 = await new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.readAsDataURL(blob);
-          });
-          
-          // Reemplazar la URL de la imagen con la versión base64
-          html = html.replace($signatureData.image.url, base64);
-        } catch (imgError) {
-          console.warn('No se pudo convertir la imagen a base64, usando URL original:', imgError);
-        }
-      }
+      // Generar HTML con la URL de imagen directa (sin convertir a base64)
+      const html = generateSignatureHTML($signatureData);
       
       const success = await copyToClipboard(html);
       
       if (success) {
-        showToast('success', '✅ HTML copiado al portapapeles (con imagen)');
+        showToast('success', '✅ HTML copiado al portapapeles');
       } else {
         showToast('error', '❌ Error al copiar HTML');
       }
@@ -71,7 +51,7 @@
       
       // Solo aplicar si el elemento tiene texto
       if (el.textContent && el.textContent.trim()) {
-        el.style.fontFamily = fontFamily || 'Arial, sans-serif';
+        el.style.fontFamily = fontFamily || 'Helvetica, Verdana, Arial, sans-serif';
       }
     });
     
@@ -205,14 +185,14 @@
             selection.removeAllRanges();
             
             if (success) {
-              showToast('success', '✨ Firma copiada con formato de tabla');
+              showToast('success', 'Firma copiada con formato de tabla');
             } else {
               // Último fallback: copiar solo HTML como texto
               const fallbackSuccess = await copyToClipboard(signatureHTML);
               if (fallbackSuccess) {
-                showToast('success', '📄 Código HTML de firma copiado');
+                showToast('success', 'Código HTML de firma copiado');
               } else {
-                showToast('error', '❌ Error al copiar firma');
+                showToast('error', 'Error al copiar firma');
               }
             }
           }
@@ -223,7 +203,7 @@
       }
     } catch (error) {
       console.error('Error copying rich content:', error);
-      showToast('error', '❌ Error al generar contenido con formato');
+      showToast('error', 'Error al generar contenido con formato');
     } finally {
       isProcessing = false;
     }
@@ -279,7 +259,7 @@
     
     // Generar tabla HTML optimizada para correos
     return `
-<table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; max-width: 600px;">
+<table cellpadding="0" cellspacing="0" border="0" style="font-family: Helvetica, Verdana, Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; max-width: 600px;">
   <tbody>
     ${imageHTML ? `
     <tr>
@@ -386,13 +366,13 @@
       const success = await copyToClipboard(prefilledURL);
       
       if (success) {
-        showToast('success', '🔗 URL con datos copiada (incluyendo imagen)');
+        showToast('success', 'URL con datos copiada (incluyendo imagen)');
       } else {
-        showToast('error', '❌ Error al copiar URL');
+        showToast('error', 'Error al copiar URL');
       }
     } catch (error) {
       console.error('Error generating prefilled URL:', error);
-      showToast('error', '❌ Error al generar URL');
+      showToast('error', 'Error al generar URL');
     } finally {
       isProcessing = false;
     }
@@ -512,16 +492,16 @@
     </h3>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600">
       <div>
-        <strong class="text-blue-600">📋 HTML:</strong> Para Gmail, Outlook, Apple Mail
+        <strong class="text-blue-600">HTML:</strong> Para Gmail, Outlook, Apple Mail
       </div>
       <div>
-        <strong class="text-emerald-600">🖼️ Imagen:</strong> Para insertar en documentos
+        <strong class="text-emerald-600">Imagen:</strong> Para insertar en documentos
       </div>
       <div>
-        <strong class="text-purple-600">🔗 URL:</strong> Enlace para compartir formulario
+        <strong class="text-purple-600">URL:</strong> Enlace para compartir formulario
       </div>
       <div>
-        <strong class="text-orange-600">📝 Tabla:</strong> Formato rico con diseño
+        <strong class="text-orange-600">Tabla:</strong> Formato rico con diseño
       </div>
     </div>
   </div>

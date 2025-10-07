@@ -1,6 +1,6 @@
 <script lang="ts">
   import EditorPanel from '$lib/components/EditorPanel.svelte';
-  import Preview from '$lib/components/Preview.svelte';
+  import SignaturePreview from '$lib/components/SignaturePreview.svelte';
 </script>
 
 <svelte:head>
@@ -29,7 +29,7 @@
       
       <!-- Vista Previa -->
       <div class="space-y-6">
-        <Preview />
+        <SignaturePreview />
       </div>
     </div>
   </div>

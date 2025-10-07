@@ -65,12 +65,6 @@
 </svelte:head>
 
 <div class="max-w-4xl mx-auto">
-  <!-- Header -->
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-white mb-3">
-      🔗 Redes Sociales
-    </h1>
-  </div>
 
   <!-- Formulario -->
   <div class="max-w-2xl">

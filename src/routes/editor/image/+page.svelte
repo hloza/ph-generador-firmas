@@ -106,11 +106,6 @@
 </script>
 
 <div class="space-y-6">
-  <div class="text-center mb-8">
-    <h2 class="text-2xl font-bold text-gray-800 mb-2">Agrega tu imagen o logo</h2>
-    <p class="text-gray-600">Ingresa la URL de tu foto o logo para personalizar tu firma</p>
-  </div>
-
   <!-- Formulario de URL -->
   <div class="space-y-4">
     {#if !imagePreview}

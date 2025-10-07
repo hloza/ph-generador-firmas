@@ -1,27 +1,95 @@
-<script>
+<script lang="ts">
   import '../app.css';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { currentStep, stepsStore, setCurrentStep, canNavigateToStep } from '$lib/stores/navigation';
+  import { currentStep, stepsStore, setCurrentStep, canNavigateToStep, resetAllSteps } from '$lib/stores/navigation';
   import SignaturePreview from '$lib/components/SignaturePreview.svelte';
   import Toast from '$lib/components/Toast.svelte';
-  import { showToast, signatureData, resetSignatureData } from '$lib/stores/signature.js';
+  import { showToast, signatureData, clearAllAppData, preventBackNavigation } from '$lib/stores/signature.js';
   import { generateSignatureHTML } from '$lib/utils/signature.js';
+  import { onMount } from 'svelte';
+  import { browser } from '$app/environment';
 
   // Estado para el modal de email
   let showEmailModal = false;
+  let emailViewMode: 'desktop' | 'mobile' = 'desktop';
 
-  // Función para limpiar todos los datos
-  function clearAllData() {
-    if (confirm('¿Estás seguro de que quieres limpiar todos los datos? Esta acción no se puede deshacer.')) {
-      resetSignatureData();
-      showToast('success', '✅ Todos los datos han sido limpiados');
+  // LIMPIEZA AUTOMÁTICA AL RECARGAR LA PÁGINA
+  onMount(() => {
+    if (browser) {
+      // Detectar si es una recarga de página
+      // @ts-ignore - Performance API puede no estar tipada correctamente
+      const navEntry = performance.getEntriesByType('navigation')[0];
+      const isPageReload = performance.navigation.type === 1 || navEntry?.type === 'reload';
       
-      // Navegar a la raíz y recargar la página
+      if (isPageReload) {
+        console.log('🔄 Recarga detectada - Limpiando datos...');
+        
+        // Limpiar localStorage
+        localStorage.removeItem('signatureData');
+        
+        // Resetear todos los pasos completados
+        resetAllSteps();
+        
+        // Resetear el store de firma a valores iniciales
+        signatureData.set({
+          fullName: '',
+          position: '',
+          email: '',
+          phone: '',
+          website: '',
+          address: '',
+          company: '',
+          socialLinks: [
+            { platform: 'linkedin', url: '', enabled: false },
+            { platform: 'twitter', url: '', enabled: false },
+            { platform: 'github', url: '', enabled: false },
+            { platform: 'instagram', url: '', enabled: false },
+            { platform: 'facebook', url: '', enabled: false },
+            { platform: 'youtube', url: '', enabled: false }
+          ],
+          primaryColor: '#0ea5e9',
+          templateId: 'minimal-1',
+          name: '',
+          title: '',
+          department: '',
+          linkedin: '',
+          twitter: '',
+          github: '',
+          instagram: '',
+          accentColor: '#8b5cf6',
+          fontFamily: 'modern'
+        });
+        
+        // Volver al paso 1 si no estamos ya allí
+        if (window.location.pathname !== '/') {
+          goto('/');
+        }
+        
+        console.log('✅ Datos limpiados - Vuelta al paso 1');
+      }
+    }
+  });
+
+  // Función para limpiar todos los datos completamente
+  function clearAllData() {
+    if (confirm('¿Estás seguro de que quieres limpiar todos los datos? Esta acción limpiará todo: localStorage, cache, cookies y datos guardados. No podrás volver atrás.')) {
+      // Limpiar TODOS los datos de la aplicación
+      clearAllAppData();
+      
+      // Resetear todos los pasos
+      resetAllSteps();
+      
+      // Prevenir navegación hacia atrás
+      preventBackNavigation();
+      
+      showToast('success', '✅ Todos los datos han sido limpiados completamente');
+      
+      // Navegar a la raíz y forzar recarga completa
       goto('/').then(() => {
-        // Esperar un momento para que la navegación se complete
         setTimeout(() => {
-          window.location.reload();
+          // Forzar recarga completa sin cache
+          window.location.href = window.location.origin + '/?nocache=' + Date.now();
         }, 100);
       });
     }
@@ -30,6 +98,7 @@
   // Funciones para el simulador de email
   function showEmailSimulator() {
     showEmailModal = true;
+    emailViewMode = 'desktop'; // Resetear a desktop al abrir
     document.body.style.overflow = 'hidden';
   }
 
@@ -60,7 +129,7 @@
     }
   }
 
-  function navigateToStep(stepPath) {
+  function navigateToStep(stepPath: string) {
     // Encontrar el ID del paso basado en la ruta
     const targetStep = $stepsStore.find(step => step.path === stepPath);
     if (!targetStep) return;
@@ -69,7 +138,7 @@
     if (canNavigateToStep(targetStep.id, $stepsStore)) {
       goto(stepPath);
     } else {
-      showToast('warning', `⚠️ Completa los pasos anteriores antes de continuar`);
+      showToast('info', `⚠️ Completa los pasos anteriores antes de continuar`);
     }
   }
 </script>
@@ -103,32 +172,32 @@
 					</button>
 				</div>
 			</div>
-		</div>
-	</header>
+	</div>
+</header>
 
-	<div class="flex flex-1 max-w-full mx-auto p-3 gap-4 w-full">
-		<!-- Sidebar expandido con contenido integrado - Columna izquierda -->
-		<div style="width: 380px; flex-shrink: 0; height: calc(100vh - 80px); overflow-y: auto;">
-			<div class="bg-white text-gray-800 p-4 rounded-lg border border-gray-200 shadow-lg">
-				<div class="flex items-center justify-between mb-4">
-					<h2 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Progreso</h2>
-					<div class="flex items-center space-x-1 text-xs text-gray-600">
-						<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-						<span>En línea</span>
-					</div>
+<div class="flex flex-1 max-w-full mx-auto p-3 gap-4 w-full">
+	<!-- Sidebar expandido con contenido integrado - Columna izquierda (40%) -->
+	<div style="width: 40%; flex-shrink: 0; height: calc(100vh - 80px); overflow-y: auto;">
+		<div class="bg-white text-gray-800 p-4 rounded-lg border border-gray-200 shadow-lg">
+			<div class="flex items-center justify-between mb-4">
+				<h2 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Progreso</h2>
+				<div class="flex items-center space-x-1 text-xs text-gray-600">
+					<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+					<span>En línea</span>
 				</div>
-				
-				<!-- Barra de progreso general -->
-				<div class="mb-4">
-					<div class="flex justify-between text-sm text-gray-600 mb-2">
-						<span>Completado</span>
-						<span>{Math.round(($stepsStore.filter(s => s.completed).length / $stepsStore.length) * 100)}%</span>
-					</div>
-					<div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-						<div 
-							class="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-500 ease-out"
-							style="width: {($stepsStore.filter(s => s.completed).length / $stepsStore.length) * 100}%"
-						></div>
+			</div>
+			
+			<!-- Barra de progreso general -->
+			<div class="mb-4">
+				<div class="flex justify-between text-sm text-gray-600 mb-2">
+					<span>Completado</span>
+					<span>{Math.round(($stepsStore.filter(s => s.completed).length / $stepsStore.length) * 100)}%</span>
+				</div>
+				<div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+					<div 
+						class="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-500 ease-out"
+						style="width: {($stepsStore.filter(s => s.completed).length / $stepsStore.length) * 100}%"
+					></div>
 					</div>
 				</div>
 
@@ -185,29 +254,29 @@
 						</div>
 					{/each}
 				</div>
-			</div>
 		</div>
+	</div>
 
-		<!-- Vista previa expandida - Columna derecha flexible -->
-		<div style="flex: 1; min-width: 0; height: calc(100vh - 80px); overflow-y: auto;">
-			<div class="bg-white text-gray-800 p-4 rounded-lg border border-gray-300 shadow-lg">
-				<div class="flex items-center justify-between mb-3">
-					<h3 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">Vista Previa</h3>
-					<div class="flex items-center space-x-2">
-						<button 
-							class="p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors" 
-							title="Ver en correo electrónico" 
-							aria-label="Ver firma en simulador de correo electrónico"
-							on:click={showEmailSimulator}
-						>
-							<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-								<path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-							</svg>
-						</button>
-					</div>
+	<!-- Vista previa expandida - Columna derecha (flex: 1, se ajusta automáticamente) -->
+	<div style="flex: 1; min-width: 0; height: calc(100vh - 80px); overflow-y: auto;">
+		<div class="bg-white text-gray-800 p-4 rounded-lg border border-gray-300 shadow-lg">
+			<div class="flex items-center justify-between mb-3">
+				<h3 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">Vista Previa</h3>
+				<div class="flex items-center space-x-2">
+					<button 
+						class="p-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors" 
+						title="Ver en correo electrónico" 
+						aria-label="Ver firma en simulador de correo electrónico"
+						on:click={showEmailSimulator}
+					>
+						<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+							<path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+						</svg>
+					</button>
 				</div>
-				
-				<div class="relative">
+			</div>
+			
+			<div class="relative">
 					<div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl"></div>
 					<div class="relative bg-white backdrop-blur-sm rounded-2xl p-6 min-h-[200px] flex items-start justify-center border border-gray-200 shadow-sm">
 						<SignaturePreview />
@@ -240,7 +309,7 @@
 <!-- Modal de Simulador de Email -->
 {#if showEmailModal}
   <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" on:click={closeEmailSimulator}>
-    <div class="bg-white w-full h-full max-w-7xl max-h-screen mx-4 my-4 rounded-lg shadow-2xl overflow-hidden" on:click|stopPropagation>
+    <div class="bg-white w-full h-full {emailViewMode === 'desktop' ? 'max-w-7xl' : 'max-w-md'} max-h-screen mx-4 my-4 rounded-lg shadow-2xl overflow-hidden transition-all duration-300" on:click|stopPropagation>
       
       <!-- Header del Cliente de Correo -->
       <div class="bg-gray-100 border-b border-gray-300 p-4 flex items-center justify-between">
@@ -248,16 +317,40 @@
           <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
             <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
           </svg>
-          <h2 class="text-lg font-semibold text-gray-800">Cliente de Correo - Vista Previa</h2>
+          <h2 class="text-lg font-semibold text-gray-800">Vista en Correo Electrónico</h2>
         </div>
-        <button 
-          class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-200"
-          on:click={closeEmailSimulator}
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
+        
+        <!-- Botones Desktop/Móvil -->
+        <div class="flex items-center space-x-2">
+          <button 
+            class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 {emailViewMode === 'desktop' ? 'bg-blue-500 text-white shadow-lg' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'}"
+            on:click={() => emailViewMode = 'desktop'}
+          >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H9.2l-.9 2H9.2l.771-2z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-sm font-medium">Escritorio</span>
+          </button>
+          
+          <button 
+            class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 {emailViewMode === 'mobile' ? 'bg-blue-500 text-white shadow-lg' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'}"
+            on:click={() => emailViewMode = 'mobile'}
+          >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zM6 4a1 1 0 011-1h6a1 1 0 011 1v10a1 1 0 01-1 1H7a1 1 0 01-1-1V4zm2 12a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-sm font-medium">Móvil</span>
+          </button>
+          
+          <button 
+            class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-200 ml-2"
+            on:click={closeEmailSimulator}
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
       </div>
 
       <!-- Contenido del Email -->
@@ -314,7 +407,7 @@
 
             <!-- Aquí se renderiza la firma -->
             <div class="border-t border-gray-200 pt-4">
-              {@html generateSignatureHTML($signatureData)}
+              {@html generateSignatureHTML($signatureData, emailViewMode === 'mobile')}
             </div>
           </div>
 

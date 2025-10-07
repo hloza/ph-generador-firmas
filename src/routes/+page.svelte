@@ -1,10 +1,11 @@
 <script lang="ts">
   import { templates } from '$lib/data/templates.js';
-  import { signatureData, showToast } from '$lib/stores/signature.js';
+  import { signatureData, showToast, clearAllAppData } from '$lib/stores/signature.js';
   import { goto } from '$app/navigation';
   import { markStepAsCompleted, getNextStep, markAllStepsAsCompleted } from '$lib/stores/navigation';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
+  import { browser } from '$app/environment';
 
   // Variable reactiva para obtener el template seleccionado
   $: selectedTemplateId = $signatureData.templateId;
@@ -13,8 +14,28 @@
   let isLoaded = false;
 
   onMount(() => {
+    // Verificar si es una recarga de página (F5 o Ctrl+R)
+    if (browser && performance.navigation.type === 1) {
+      // Es una recarga - limpiar TODOS los datos
+      console.log('🔄 Recarga detectada - limpiando todos los datos...');
+      clearAllAppData();
+      
+      // Forzar recarga completa sin cache
+      window.location.href = window.location.origin + '/?cleaned=' + Date.now();
+      return; // Salir temprano para evitar procesamiento adicional
+    }
+    
     // Cargar datos desde URL parameters si están disponibles
     const urlParams = $page.url.searchParams;
+    
+    // Verificar si venimos de una limpieza
+    if (urlParams.has('cleaned') || urlParams.has('nocache')) {
+      console.log('✅ Página limpiada - estado inicial');
+      // Limpiar el parámetro de la URL
+      window.history.replaceState({}, '', '/');
+      isLoaded = true;
+      return;
+    }
     
     // Solo procesar parámetros URL si realmente hay parámetros nuevos
     if (urlParams.size > 0) {
