@@ -10,13 +10,6 @@ export interface Step {
 
 export const steps: Step[] = [
   {
-    id: 'template',
-    title: 'Plantilla',
-    description: 'Elige tu diseño favorito',
-    path: '/',
-    completed: false
-  },
-  {
     id: 'personal',
     title: 'Información Personal',
     description: 'Completa tus datos básicos',
@@ -38,13 +31,6 @@ export const steps: Step[] = [
     completed: false
   },
   {
-    id: 'image',
-    title: 'Imagen de Perfil',
-    description: 'Sube tu foto profesional',
-    path: '/editor/image',
-    completed: false
-  },
-  {
     id: 'design',
     title: 'Personalización',
     description: 'Ajusta colores y estilos',
@@ -60,7 +46,7 @@ export const steps: Step[] = [
   }
 ];
 
-export const currentStep = writable<string>('template');
+export const currentStep = writable<string>('personal');
 export const stepsStore = writable<Step[]>(steps);
 
 export function setCurrentStep(stepId: string) {
@@ -120,5 +106,5 @@ export function resetAllSteps() {
   stepsStore.update(steps => {
     return steps.map(step => ({ ...step, completed: false }));
   });
-  currentStep.set('template');
+  currentStep.set('personal');
 }

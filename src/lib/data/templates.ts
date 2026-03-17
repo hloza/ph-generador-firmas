@@ -4,30 +4,24 @@ export const templates: Template[] = [
   // === PLANTILLAS MINIMALISTAS ===
   {
     id: 'minimal-1',
-    name: 'Minimal Clean',
+    name: 'Minimalist',
     description: 'Diseño ultra limpio con tipografía elegante y espaciado perfecto',
     preview: 'minimal-1',
     category: 'minimal'
   },
-  {
-    id: 'minimal-2',
-    name: 'Minimal Lines',
-    description: 'Minimalista con líneas de separación sutiles y estructura clara',
-    preview: 'minimal-2',
-    category: 'minimal'
-  },
+
 
   // === PLANTILLAS PROFESIONALES ===
   {
     id: 'professional-1',
-    name: 'Professional Executive',
+    name: 'Ejecutivo',
     description: 'Diseño ejecutivo con separadores elegantes y jerarquía visual',
     preview: 'professional-1',
     category: 'professional'
   },
   {
     id: 'professional-2',
-    name: 'Professional Modern',
+    name: 'Moderno',
     description: 'Estilo moderno con estructura equilibrada y colores corporativos',
     preview: 'professional-2',
     category: 'professional'
@@ -36,7 +30,7 @@ export const templates: Template[] = [
   // === PLANTILLAS CREATIVAS ===
   {
     id: 'creative-1',
-    name: 'Creative Bold',
+    name: 'Creativo',
     description: 'Colores vibrantes con formas geométricas y diseño dinámico',
     preview: 'creative-1',
     category: 'creative'
@@ -45,9 +39,30 @@ export const templates: Template[] = [
   // === PLANTILLA CORPORATIVA ===
   {
     id: 'corporate-1',
-    name: 'Corporate Premium',
+    name: 'Corporativo',
     description: 'Diseño corporativo de alta gama con elementos institucionales',
     preview: 'corporate-1',
+    category: 'corporate'
+  },
+  {
+    id: 'corporate-center',
+    name: 'Centrado',
+    description: 'Diseño estructurado y formal con imagen en la parte superior y centrado',
+    preview: 'corporate-center',
+    category: 'corporate'
+  },
+  {
+    id: 'corporate-banner',
+    name: 'Banner',
+    description: 'Diseño con banner coloreado superior destacando el perfil corporativo',
+    preview: 'corporate-banner',
+    category: 'corporate'
+  },
+  {
+    id: 'corporate-elegance',
+    name: 'Elegante',
+    description: 'Diseño asimétrico y sofisticado con separadores y foto destacada arriba',
+    preview: 'corporate-elegance',
     category: 'corporate'
   }
 ];

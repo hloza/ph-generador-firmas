@@ -33,6 +33,8 @@ export interface SignatureData {
   twitter?: string;
   github?: string;
   instagram?: string;
+  facebook?: string;
+  youtube?: string;
   accentColor?: string;
   fontFamily?: string;
   image?: ImageData;
@@ -73,6 +75,8 @@ const initialSignatureData: SignatureData = {
   twitter: '',
   github: '',
   instagram: '',
+  facebook: '',
+  youtube: '',
   accentColor: '#d97706',
   fontFamily: 'modern'
 };
@@ -102,6 +106,8 @@ function loadFromStorage(): SignatureData {
       if (urlParams.get('twitter')) urlData.twitter = urlParams.get('twitter')!;
       if (urlParams.get('github')) urlData.github = urlParams.get('github')!;
       if (urlParams.get('instagram')) urlData.instagram = urlParams.get('instagram')!;
+      if (urlParams.get('facebook')) urlData.facebook = urlParams.get('facebook')!;
+      if (urlParams.get('youtube')) urlData.youtube = urlParams.get('youtube')!;
       if (urlParams.get('templateId')) urlData.templateId = urlParams.get('templateId')!;
       
       // Cargar parámetros de imagen desde URL

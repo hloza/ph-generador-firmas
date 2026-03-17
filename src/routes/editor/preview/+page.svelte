@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { markStepAsCompleted, getPreviousStep } from '$lib/stores/navigation';
+  import { markStepAsCompleted, getPreviousStep } from '$lib/stores/navigation.js';
   import { goto } from '$app/navigation';
   import ExportPanel from '$lib/components/ExportPanel.svelte';
 

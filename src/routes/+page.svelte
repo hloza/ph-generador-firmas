@@ -2,7 +2,7 @@
   import { templates } from '$lib/data/templates.js';
   import { signatureData, showToast, clearAllAppData } from '$lib/stores/signature.js';
   import { goto } from '$app/navigation';
-  import { markStepAsCompleted, getNextStep, markAllStepsAsCompleted } from '$lib/stores/navigation';
+  import { markStepAsCompleted, getNextStep, markAllStepsAsCompleted } from '$lib/stores/navigation.js';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { browser } from '$app/environment';
@@ -89,171 +89,21 @@
         }, 50);
       }
     }
-    // Si NO hay parámetros URL, simplemente no hacer nada
-    // Los datos del store se mantienen intactos
-    
+    // Si NO hay parámetros URL o ya terminamos de procesarlos, redirigir a personal
     setTimeout(() => {
-      isLoaded = true;
+      goto('/editor/personal', { replaceState: true });
     }, 100);
   });
-
-  function selectTemplate(templateId: string) {
-    signatureData.update(data => ({
-      ...data,
-      templateId
-    }));
-    
-    // Marcar el paso de plantilla como completado
-    markStepAsCompleted('template');
-  }
-
-  function continueToNextStep() {
-    if (selectedTemplateId) {
-      markStepAsCompleted('template');
-      const nextStep = getNextStep('template');
-      if (nextStep) {
-        goto(nextStep.path);
-      }
-    }
-  }
 </script>
 
 <svelte:head>
-  <title>Generador de Firmas de Email - Plantillas</title>
-  <meta name="description" content="Selecciona una plantilla profesional para tu firma de correo electrónico" />
-  <style>
-    .template-card:hover .top-shine {
-      background: rgba(6, 182, 212, 0.3) !important;
-    }
-    .template-card:hover .hover-overlay {
-      opacity: 1 !important;
-    }
-    .template-card:hover .shine-effect {
-      transform: translateX(100%) !important;
-    }
-    .template-card.selected .premium-border {
-      opacity: 1 !important;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    @keyframes slideInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    .animate-slideInUp {
-      animation: slideInUp 0.6s ease-out forwards;
-    }
-  </style>
+  <title>Generador de Firmas de Email - Cargando...</title>
 </svelte:head>
 
-<!-- Contenido principal -->
-<div class="relative" style="background: white;">
-<div class="px-4 py-1 relative z-10" class:animate-slideInUp={isLoaded}>
-  <!-- Grid de plantillas -->  
-  <div class="mb-2 relative">
-    <div class="grid grid-cols-3 gap-3">
-      {#each templates as template, index}
-        <button 
-          on:click={() => selectTemplate(template.id)}
-          class="relative overflow-hidden rounded-lg transition-all duration-300 cursor-pointer w-full text-left border-2 template-card {selectedTemplateId === template.id ? 'bg-blue-50 border-blue-500 shadow-lg selected' : 'bg-white border-gray-300 shadow-sm hover:shadow-md hover:border-blue-300'}"
-          style="
-            height: 50px;
-            animation-delay: {index * 100}ms;
-            transform: {selectedTemplateId === template.id ? 'translateY(-1px)' : 'translateY(0)'};
-          "
-          on:mouseenter={(e) => {
-            if (selectedTemplateId !== template.id) {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = '0 8px 20px rgba(159, 213, 209, 0.2)';
-              e.currentTarget.style.borderColor = 'rgba(159, 213, 209, 0.5)';
-            }
-          }}
-          on:mouseleave={(e) => {
-            if (selectedTemplateId === template.id) {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 8px 25px rgba(159, 213, 209, 0.25)';
-              e.currentTarget.style.borderColor = 'rgb(159, 213, 209)';
-            } else {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
-              e.currentTarget.style.borderColor = 'rgb(209, 213, 219)';
-            }
-          }}
-        >
-          <!-- Contenido principal -->
-          <div style="
-            position: relative;
-            padding: 8px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-          ">
-            <!-- Solo el nombre -->
-            <h3 class="text-xs font-semibold transition-all duration-300 text-center m-0 {selectedTemplateId === template.id ? 'text-blue-700' : 'text-gray-800'}"
-                style="line-height: 1.1;">
-              {template.name}
-            </h3>
-          </div>
-        </button>
-      {/each}
-    </div>
-    
-
+<!-- Estado de carga invisible u opcional -->
+<div class="flex items-center justify-center h-full min-h-[50vh]">
+  <div class="animate-pulse flex flex-col items-center">
+    <div class="h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    <span class="mt-4 text-slate-500 text-sm font-medium">Preparando editor...</span>
   </div>
-
-  <!-- Sección de confirmación premium -->
-  {#if selectedTemplateId}
-    <div class="text-center mt-1">
-      <div class="inline-flex flex-col items-center space-y-2 max-w-xs mx-auto">
-
-        
-        <!-- Botón continuar mejorado -->
-        <div class="w-full max-w-sm">
-          <button 
-            on:click={continueToNextStep}
-            class="w-full bg-blue-600 text-white hover:bg-blue-700 border-2 border-blue-600 hover:border-blue-700 px-4 py-3 rounded-lg font-semibold transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm"
-          >
-            <div class="flex items-center justify-center gap-2">
-              <span>Continuar</span>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-              </svg>
-            </div>
-          </button>
-        </div>
-        
-
-      </div>
-    </div>
-  {:else}
-    <!-- Estado sin selección -->
-    <div class="text-center py-4 px-5">
-      <div class="max-w-md mx-auto">
-        <div class="w-30 h-30 bg-muted/20 rounded-full flex items-center justify-center border-3 border-dashed border-muted-foreground/30 mx-auto mb-8">
-          <svg class="w-12 h-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-          </svg>
-        </div>
-        <div>
-          <h3 class="text-2xl font-bold text-foreground mb-4">
-            Selecciona una Plantilla
-          </h3>
-          <p class="text-muted-foreground text-base leading-relaxed">
-            Elige una plantilla profesional para comenzar a crear tu firma de correo electrónico
-          </p>
-        </div>
-      </div>
-    </div>
-  {/if}
-</div>
 </div>

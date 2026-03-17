@@ -1,6 +1,6 @@
 <script lang="ts">
   import { signatureData } from '$lib/stores/signature.js';
-  import { markStepAsCompleted, getNextStep, getPreviousStep } from '$lib/stores/navigation';
+  import { markStepAsCompleted, getNextStep, getPreviousStep } from '$lib/stores/navigation.js';
   import { goto } from '$app/navigation';
 
   let formData = {
@@ -56,8 +56,6 @@
   $: if (hasAnySocial) {
     markStepAsCompleted('social');
   }
-
-  $: hasAnySocial = Object.values(formData).some(value => value.trim());
 </script>
 
 <svelte:head>

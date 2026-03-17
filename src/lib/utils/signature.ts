@@ -1,4 +1,4 @@
-﻿import type { SignatureData } from "../stores/signature.js";
+import type { SignatureData } from "../stores/signature.js";
 import { placeholderData, getValueOrPlaceholder, shouldShowSection, hasUserData } from "../data/placeholders.js";
 
 export function generateSignatureHTML(data: SignatureData, forMobile: boolean = false): string {
@@ -51,8 +51,8 @@ export function generateSignatureHTML(data: SignatureData, forMobile: boolean = 
   
   const fontStyle = fontFamilyStyles[fontFamily as keyof typeof fontFamilyStyles];
   
-  // Función para generar imagen de perfil
-  const getImageHtml = (forDesktop = false) => {
+    // Función para generar imagen de perfil
+  const getImageHtml = (forDesktop = false, forceTop = false) => {
     // Usar imagen del usuario o placeholder
     const imageUrl = data.image?.url || (showPlaceholders ? placeholderData.imageUrl : '');
     
@@ -84,8 +84,8 @@ export function generateSignatureHTML(data: SignatureData, forMobile: boolean = 
     
     const shapeStyle = shapeStyles[shape];
     
-    // En móvil: imagen arriba centrada, en desktop: imagen a la izquierda
-    if (isMobile) {
+    // En móvil: imagen arriba centrada, en desktop: imagen a la izquierda, o forzado por forceTop
+    if (isMobile || forceTop) {
       return `
         <div style="
           display: flex; 
@@ -210,27 +210,7 @@ export function generateSignatureHTML(data: SignatureData, forMobile: boolean = 
       </div>
     `,
 
-    // MINIMAL LINES - Con líneas separadoras elegantes
-    'minimal-2': `
-      <div style="${fontStyle} max-width: ${isMobile ? '400px' : '670px'}; width: 100%; display: flex; ${isMobile ? 'flex-direction: column; text-align: center;' : 'flex-direction: row;'} align-items: center; gap: 20px; padding: 16px;">
-        ${getImageHtml(true)}
-        <div style="flex: 1; min-width: 0; width: 100%;">
-          <h3 style="color: ${primaryColor}; margin: 0 0 3px 0; font-size: 17px; font-weight: 300; letter-spacing: 0.5px; ${placeholderStyle}">${name}</h3>
-          <div style="width: 20px; height: 1px; background: ${accentColor}; margin: ${isMobile ? '0 auto 4px auto' : '0 0 4px 0'};"></div>
-          <p style="color: ${accentColor}; margin: 0 0 4px 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; ${placeholderStyle}">${title}</p>
-          ${shouldShowSection(data.company, showPlaceholders) ? `<p style="color: #777; margin: 0 0 6px 0; font-size: 11px; font-weight: 400; ${placeholderStyle}">${company}${department}</p>` : ''}
-          
-          <div style="border-top: 1px solid #e0e0e0; padding-top: 4px; margin-top: 4px; font-size: 10px; color: #666;">
-            ${shouldShowSection(data.email, showPlaceholders) ? `<div style="margin-bottom: 2px; display: flex; align-items: center; ${isMobile ? 'justify-content: center;' : ''} gap: 4px; ${placeholderStyle}"><img src="https://img.icons8.com/fluency/48/mail--v1.png" alt="Email" style="width: 10px; height: 10px;" /> ${email}</div>` : ''}
-            ${shouldShowSection(data.phone, showPlaceholders) ? `<div style="margin-bottom: 2px; display: flex; align-items: center; ${isMobile ? 'justify-content: center;' : ''} gap: 4px; ${placeholderStyle}"><img src="https://img.icons8.com/color/48/phone.png" alt="Phone" style="width: 10px; height: 10px;" /> ${phone}</div>` : ''}
-            ${shouldShowSection(data.website, showPlaceholders) ? `<div style="margin-bottom: 2px; display: flex; align-items: center; ${isMobile ? 'justify-content: center;' : ''} gap: 4px; ${placeholderStyle}"><img src="https://img.icons8.com/color/48/internet--v1.png" alt="Website" style="width: 10px; height: 10px;" /> ${website}</div>` : ''}
-            ${shouldShowSection(data.address, showPlaceholders) ? `<div style="display: flex; align-items: center; ${isMobile ? 'justify-content: center;' : ''} gap: 4px; ${placeholderStyle}"><img src="https://img.icons8.com/external-icongeek26-flat-icongeek26/64/external-place-essentials-icongeek26-flat-icongeek26.png" alt="Address" style="width: 10px; height: 10px;" /> ${address}</div>` : ''}
-          </div>
-          
-          ${getSocialIcons()}
-        </div>
-      </div>
-    `,
+
 
     // PROFESSIONAL EXECUTIVE - Diseño ejecutivo con jerarquía clara
     'professional-1': `
@@ -315,7 +295,86 @@ export function generateSignatureHTML(data: SignatureData, forMobile: boolean = 
           ${getSocialIcons()}
         </div>
       </div>
-    `
+    `,
+
+    // CORPORATE CENTERED - Imagen en la parte superior, contenido centrado
+    'corporate-center': `
+      <div style="${fontStyle} max-width: 600px; width: 100%; text-align: center; background: white; border: 1px solid #eaeaea; border-top: 5px solid ${primaryColor}; padding: 30px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        ${getImageHtml(false, true)}
+        <h3 style="color: ${primaryColor}; margin: 0 0 4px 0; font-size: ${isMobile ? '18px' : '22px'}; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; ${placeholderStyle}">${name}</h3>
+        <p style="color: ${accentColor}; margin: 0 0 12px 0; font-size: ${isMobile ? '12px' : '14px'}; font-weight: 500; letter-spacing: 0.5px; ${placeholderStyle}">${title}</p>
+        ${shouldShowSection(data.company, showPlaceholders) ? `<p style="color: #444; margin: 0 0 16px 0; font-size: ${isMobile ? '11px' : '12px'}; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; ${placeholderStyle}">${company}${department}</p>` : ''}
+        
+        <div style="width: 50px; height: 2px; background: ${accentColor}; margin: 0 auto 16px auto;"></div>
+        
+        <div style="font-size: ${isMobile ? '10px' : '11px'}; color: #666; line-height: 1.6;">
+          ${shouldShowSection(data.email, showPlaceholders) ? `<div style="margin-bottom: 4px; ${placeholderStyle}"><strong>E:</strong> <span style="color: ${primaryColor}">${email}</span></div>` : ''}
+          ${shouldShowSection(data.phone, showPlaceholders) ? `<div style="margin-bottom: 4px; ${placeholderStyle}"><strong>T:</strong> ${phone}</div>` : ''}
+          ${shouldShowSection(data.website, showPlaceholders) ? `<div style="margin-bottom: 4px; ${placeholderStyle}"><strong>W:</strong> ${website}</div>` : ''}
+          ${shouldShowSection(data.address, showPlaceholders) ? `<div style="${placeholderStyle}"><strong>A:</strong> ${address}</div>` : ''}
+        </div>
+        
+        <div style="margin-top: 16px; display: inline-block;">
+          ${getSocialIcons()}
+        </div>
+      </div>
+    `,
+
+    // CORPORATE BANNER - Banner coloreado en la parte superior
+    'corporate-banner': `
+      <div style="${fontStyle} max-width: 650px; width: 100%; overflow: hidden; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); background: white; border: 1px solid #f0f0f0;">
+        <div style="background: linear-gradient(135deg, ${primaryColor}, ${accentColor}); padding: 30px; text-align: center;">
+          ${getImageHtml(false, true).replace(/border: 3px solid.*?;/g, 'border: 4px solid white;').replace(/margin-bottom: 16px;/g, 'margin-bottom: -60px; position: relative; z-index: 10;')}
+        </div>
+        <div style="padding: 50px 30px 30px 30px; text-align: center; background: white;">
+          <h3 style="color: ${primaryColor}; margin: 0 0 4px 0; font-size: ${isMobile ? '18px' : '22px'}; font-weight: 800; ${placeholderStyle}">${name}</h3>
+          <p style="color: ${accentColor}; margin: 0 0 8px 0; font-size: ${isMobile ? '11px' : '13px'}; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; ${placeholderStyle}">${title}</p>
+          ${shouldShowSection(data.company, showPlaceholders) ? `<p style="color: #666; margin: 0 0 16px 0; font-size: ${isMobile ? '11px' : '12px'}; font-weight: 500; ${placeholderStyle}">${company}${department}</p>` : ''}
+          
+          <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 20px; font-size: ${isMobile ? '9px' : '11px'}; color: #555; border-top: 1px solid #eee; padding-top: 20px;">
+            ${shouldShowSection(data.email, showPlaceholders) ? `<div style="display: flex; align-items: center; gap: 5px; ${placeholderStyle}"><img src="https://img.icons8.com/fluency/48/mail--v1.png" style="width:14px;height:14px;" alt="email"/> ${email}</div>` : ''}
+            ${shouldShowSection(data.phone, showPlaceholders) ? `<div style="display: flex; align-items: center; gap: 5px; ${placeholderStyle}"><img src="https://img.icons8.com/color/48/phone.png" style="width:14px;height:14px;" alt="phone"/> ${phone}</div>` : ''}
+            ${shouldShowSection(data.website, showPlaceholders) ? `<div style="display: flex; align-items: center; gap: 5px; ${placeholderStyle}"><img src="https://img.icons8.com/color/48/internet--v1.png" style="width:14px;height:14px;" alt="web"/> ${website}</div>` : ''}
+          </div>
+          
+          <div style="margin-top: 20px; display: flex; justify-content: center;">
+            ${getSocialIcons()}
+          </div>
+        </div>
+      </div>
+    `,
+
+    // CORPORATE ELEGANCE - Diseño asimétrico elegante (40/60 split)
+    'corporate-elegance': `
+        <div style="${fontStyle} max-width: 750px; width: 100%; display: flex; ${isMobile ? 'flex-direction: column;' : 'flex-direction: row;'} background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), border-top: 4px solid ${primaryColor};">
+          
+          <!-- LEFT COLUMN: 40% -->
+          <div style="${isMobile ? 'width: 100%; border-bottom: 1px solid #e2e8f0; padding: 30px;' : 'width: 40%; border-right: 1px solid #e2e8f0; padding: 40px 20px;'} display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #f8fafc;">
+            <div style="margin-top: 5px; width: 100%; display: flex; justify-content: center;">
+              ${getSocialIcons()}
+            </div>
+            <div style="margin-top: 20px; text-align: center;">
+               <p style="color: ${primaryColor}; font-weight: 800; font-size: 18px; margin: 0; letter-spacing: 2px;">${(data.company || 'CORP').substring(0, 4).toUpperCase()}</p>
+            </div>
+          </div>
+          
+          <!-- RIGHT COLUMN: 60% -->
+          <div style="${isMobile ? 'width: 100%; padding: 30px;' : 'width: 60%; padding: 40px 30px;'} display: flex; flex-direction: column; justify-content: center;">
+            <h3 style="color: ${primaryColor}; margin: 0 0 4px 0; font-size: ${isMobile ? '20px' : '24px'}; font-weight: 700; letter-spacing: -0.5px;">${name}</h3>
+            <p style="color: ${accentColor}; margin: 0 0 16px 0; font-size: ${isMobile ? '12px' : '14px'}; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">${title}</p>
+            
+            ${data.company ? `<p style="color: #475569; margin: 0 0 20px 0; font-size: ${isMobile ? '11px' : '13px'}; font-weight: 500; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; display: inline-block;">${company}${department}</p>` : ''}
+            
+            <div style="display: flex; flex-direction: column; gap: 10px; font-size: ${isMobile ? '11px' : '12px'}; color: #475569;">
+              ${data.email ? `<div style="display: flex; align-items: center; gap: 10px;"><span style="color: ${primaryColor}; font-weight: 700; width: 20px; text-align: center;">E</span> <a href="mailto:${data.email}" style="color: #475569; text-decoration: none;">${email}</a></div>` : ''}
+              ${data.phone ? `<div style="display: flex; align-items: center; gap: 10px;"><span style="color: ${primaryColor}; font-weight: 700; width: 20px; text-align: center;">P</span> <a href="tel:${data.phone}" style="color: #475569; text-decoration: none;">${phone}</a></div>` : ''}
+              ${data.website ? `<div style="display: flex; align-items: center; gap: 10px;"><span style="color: ${primaryColor}; font-weight: 700; width: 20px; text-align: center;">W</span> <a href="${data.website.startsWith('http') ? data.website : 'https://' + data.website}" style="color: #475569; text-decoration: none;">${website}</a></div>` : ''}
+              ${data.address ? `<div style="display: flex; align-items: center; gap: 10px;"><span style="color: ${primaryColor}; font-weight: 700; width: 20px; text-align: center;">A</span> ${address}</div>` : ''}
+            </div>
+          </div>
+          
+        </div>
+      `
   };
 
   // Retornar la plantilla seleccionada o una por defecto

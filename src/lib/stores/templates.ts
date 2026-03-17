@@ -1,4 +1,4 @@
-import { writable } from 'svelte/stores';
+import { writable } from 'svelte/store';
 
 // Store para manejar la vista previa de plantillas
 export const templatePreview = writable<string | null>(null);
